@@ -1,0 +1,4 @@
+Tecla "A" // Modo edición de tiempo de drenaje automático
+Tecla "B" // Si se presionó la tecla B, encender o apagar la bomba
+Tecla "C" // Si se presionó la tecla C, encender o apagar la ventilación
+Tecla "D" // Si se presionó la tecla D, ejecutar el drenaje manual

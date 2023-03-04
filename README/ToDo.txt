@@ -1,0 +1,8 @@
+- Variables rele: Bomba, ventilaion y drenaje 
+- Una pantalla con informacion de temperatura interior y exterior de la maquina 
+- Cuando se ponga en marcha el sistema temporizar el arranque 
+- la bomba arrancar de forma inmedita si tiene agua suficiente
+- luego de embeber los paneles por 3` arranca el sistema de ventilacion
+- automaticamente el sistema cada X horas (12, 24 ó 72) ejecutar un drenaje del agua 
+- posibilidad de dejar la ventilacion en continuo
+- con un teclado matricial 4x4 usar las letras para entrar a modificar cada funcion y tiempos

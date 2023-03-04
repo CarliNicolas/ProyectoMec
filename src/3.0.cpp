@@ -100,38 +100,51 @@ bombaEncendida = true;
 
 
 // Si se presionó la tecla A, ingresar a modo de edición del tiempo de drenado automático
-if (tecla == 'A') {
-    // Mostrar un mensaje en la pantalla indicando que se está en modo de edición del tiempo de drenado automático
+if (tecla == 'A') { // Modo edición de tiempo de drenaje automático
     lcd.setCursor(0, 0);
     lcd.print("Editar tiempo auto");
     lcd.setCursor(0, 1);
-    lcd.print("Drenaje (ms):      ");
-    // Esperar a que se libere la tecla A antes de continuar
+    lcd.print("Drenaje (horas):   ");
+    
     while (teclado.getKey() == 'A') {
       delay(10);
     }
-    // Iniciar la edición del tiempo de drenado automático
-    nuevoTiempoDrenajeAuto = "";
-    while (nuevoTiempoDrenajeAuto.length() < 9) {  // Se permite un máximo de 9 dígitos (99.999.999 ms)
-      // Leer la tecla presionada
+    
+    nuevoTiempoDrenajeAuto = 0;
+    while (nuevoTiempoDrenajeAuto < 999) { // Máximo de 999 horas
       tecla = teclado.getKey();
       if (tecla != NO_KEY) {
-        // Si se presionó una tecla numérica, agregar el dígito a la variable auxiliar
         if (tecla >= '0' && tecla <= '9') {
-          nuevoTiempoDrenajeAuto += tecla;
-          lcd.setCursor(14, 1);
+          nuevoTiempoDrenajeAuto = nuevoTiempoDrenajeAuto * 10 + (tecla - '0');
+          lcd.setCursor(16, 1);
           lcd.print(nuevoTiempoDrenajeAuto);
-        }
-        // Si se presionó la tecla de confirmación (*) o la tecla de cancelación (#), salir del modo de edición
-        else if (tecla == '*' || tecla == '#') {
+        } else if (tecla == '*' || tecla == '#') {
           if (tecla == '*') {
-            tiempoDrenajeAuto = nuevoTiempoDrenajeAuto.toInt();
+            // Convertir horas a milisegundos
+            tiempoDrenajeAuto = nuevoTiempoDrenajeAuto * 3600000;
             lcd.setCursor(0, 0);
             lcd.print("Tiempo auto drenaj:");
+            // Mostrar el tiempo en horas en lugar de milisegundos
             lcd.setCursor(0, 1);
-            lcd.print(tiempoDrenajeAuto);
+            lcd.print(tiempoDrenajeAuto / 3600000);
+          } else {
+            lcd.setCursor(0, 0);
+            lcd.print("Tiempo auto drenaj:");
+            // Mostrar el tiempo en horas en lugar de milisegundos
+            lcd.setCursor(0, 1);
+            lcd.print(tiempoDrenajeAuto / 3600000);
           }
-
+          
+          while (teclado.getKey() == '*' || teclado.getKey() == '#') {
+            delay(10);
+          }
+          return;
+        }
+      }
+      delay(10);
+    }
+  }
+  
 
 // Si se presionó la tecla C, encender o apagar la ventilación
 else if (tecla == 'C') {
