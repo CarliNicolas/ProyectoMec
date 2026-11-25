@@ -185,7 +185,7 @@ Se trabaja en varios ejemplares a la vez, y el espacio libre de riel o las medid
 
 | Lo que se ve en las fotos | Dónde | Función de la app |
 |---|---|---|
-| Contactor de otro modelo mezclado: un LC1E1210 entre LC1E0910 (placa «3») y uno de la serie anterior «EasyPact TVS» (placa «1») | Fila de contactores | Coherencia de series y modelos (VAL-07), lista de modelos homologados (VAL-04), control del kit por código (MAT-04) |
+| Contactor de otro modelo mezclado: un LC1E1210 entre LC1E0910 (placa «3») y uno de la serie anterior «EasyPact TVS» (placa «1») | Fila de contactores | Coherencia de series y modelos (VAL-07), lista de modelos homologados (VAL-04), kit por ejemplar (MAT-04) |
 | Falta la etiqueta BOM1 en protector y contactor; termomagnéticas, PLC, relés, controladores de nivel y cabecera sin identificar | Todo el tablero de 5 | Etiquetas duplicadas o faltantes (VAL-03), etiquetas de aparato en lote (ARM-03) |
 | Etiquetas SOPn tapando la referencia y el QR del guardamotor; BOM5 despegándose; etiquetas torcidas | Guardamotores y protectores | Zona de etiqueta por componente (CAT-12) |
 | Un tablero entero sin una sola etiqueta ni marcador | Gabinete plástico | Generador de nomenclatura (ELE-01), checklist de terminación (CAL-09) |
