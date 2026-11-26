@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tableros MEC</title>
+<meta name="description" content="Armado de tableros eléctricos: componentes, medidas y distribución en 2D y 3D.">
+<meta name="theme-color" content="#16222f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tableros">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="barra">
+  <button id="btnMenu" class="icono" aria-label="Menú" title="Menú">
+    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+  </button>
+  <button id="btnNombre" class="titulo" title="Mis tableros">
+    <span id="nombre" class="nombre">Tableros MEC</span>
+    <span id="sub" class="sub"></span>
+  </button>
+  <button id="btnDeshacer" class="icono" aria-label="Deshacer" title="Deshacer">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5 3 10l5 5M3 10h11a6 6 0 0 1 0 12h-3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <button id="btnRehacer" class="icono" aria-label="Rehacer" title="Rehacer">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="m16 5 5 5-5 5M21 10H10a6 6 0 0 0 0 12h3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+</header>
+
+<div id="resumen" class="resumen" role="status" aria-live="polite"></div>
+
+<nav class="pestanas" role="tablist" aria-label="Vistas">
+  <button data-vista="2d" role="tab">Plano</button>
+  <button data-vista="3d" role="tab">3D</button>
+  <button data-vista="foto" role="tab">Foto</button>
+  <button data-vista="lista" role="tab">Componentes</button>
+</nav>
+
+<main id="principal">
+  <section id="col2d" class="columna" aria-label="Plano 2D">
+    <div class="herramientas">
+      <div class="grupo">
+        <button id="zMenos" class="chico" aria-label="Alejar">−</button>
+        <button id="zAjustar" class="chico" title="Ver todo">Ver todo</button>
+        <button id="zMas" class="chico" aria-label="Acercar">+</button>
+      </div>
+      <div class="leyenda" aria-hidden="true">
+        <span><i class="p ok"></i>entra</span><span><i class="p justo"></i>justo</span><span><i class="p pasado"></i>no entra</span>
+      </div>
+    </div>
+    <div id="lienzo" class="lienzo"><svg id="plano" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Plano del tablero"></svg></div>
+    <div id="bandeja" class="bandeja" hidden></div>
+    <div id="rieles" class="rieles"></div>
+  </section>
+
+  <section id="colDer" class="columna" aria-label="Vista 3D, foto y componentes">
+    <div id="v3d" class="vista">
+      <canvas id="lienzo3d"></canvas>
+      <div class="flotante">
+        <button id="b3dFrente" class="chico">De frente</button>
+        <button id="b3dPersp" class="chico">En perspectiva</button>
+      </div>
+      <p id="sin3d" class="nota" hidden>Este dispositivo no pudo abrir la vista 3D. El plano funciona igual.</p>
+    </div>
+    <div id="vfoto" class="vista" hidden></div>
+    <div id="vlista" class="vista" hidden></div>
+  </section>
+</main>
+
+<div id="hoja" class="hoja" hidden></div>
+<dialog id="dlg" class="dialogo"></dialog>
+<div id="aviso" class="aviso" hidden role="status" aria-live="polite"></div>
+<input type="file" id="archivoFoto" accept="image/*" hidden>
+<input type="file" id="archivoJson" accept=".json,application/json" hidden>
+<section id="impresion" class="solo-impresion"></section>
+
+<noscript><p style="padding:16px">Esta página necesita JavaScript para funcionar.</p></noscript>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
