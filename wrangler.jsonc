@@ -1,0 +1,8 @@
+// Publicación de la app de tableros en Cloudflare: sirve la carpeta tableros-app/ tal cual, sin compilar.
+{
+  "name": "tableros-mec",
+  "compatibility_date": "2026-01-01",
+  "assets": {
+    "directory": "./tableros-app"
+  }
+}

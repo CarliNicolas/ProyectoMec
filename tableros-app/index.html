@@ -38,6 +38,7 @@
   <button data-vista="3d" role="tab">3D</button>
   <button data-vista="foto" role="tab">Foto</button>
   <button data-vista="lista" role="tab">Componentes</button>
+  <button data-vista="armar" role="tab">Armar</button>
 </nav>
 
 <main id="principal">
@@ -47,12 +48,14 @@
         <button id="zMenos" class="chico" aria-label="Alejar">−</button>
         <button id="zAjustar" class="chico" title="Ver todo">Ver todo</button>
         <button id="zMas" class="chico" aria-label="Acercar">+</button>
+        <button id="bCotas" class="chico" aria-pressed="false" title="Mostrar las medidas en el plano">Medidas</button>
+        <button id="bCandado" class="chico" aria-pressed="false" title="Bloquear para que no se mueva nada sin querer">🔓 Bloquear</button>
       </div>
       <div class="leyenda" aria-hidden="true">
         <span><i class="p ok"></i>entra</span><span><i class="p justo"></i>justo</span><span><i class="p pasado"></i>no entra</span>
       </div>
     </div>
-    <div id="lienzo" class="lienzo"><svg id="plano" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Plano del tablero"></svg></div>
+    <div id="lienzo" class="lienzo"><svg id="plano" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Plano del tablero" tabindex="-1"></svg></div>
     <div id="bandeja" class="bandeja" hidden></div>
     <div id="rieles" class="rieles"></div>
   </section>
@@ -68,6 +71,7 @@
     </div>
     <div id="vfoto" class="vista" hidden></div>
     <div id="vlista" class="vista" hidden></div>
+    <div id="varmar" class="vista" hidden></div>
   </section>
 </main>
 

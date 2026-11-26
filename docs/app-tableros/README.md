@@ -11,6 +11,8 @@ Sale de revisar en detalle las 48 fotos de los tableros del taller, de investiga
 | [02 · Catálogo completo de funciones](02-catalogo-funciones.md) | **272 funciones** en 15 módulos, con etapa, impacto y esfuerzo |
 | [03 · Arquitectura técnica](03-arquitectura-tecnica.md) | Decisiones técnicas, modelo de datos, límites del iPhone, costos |
 | [Anexos A a F](anexos/) | Programas existentes · fotos, medidas e inteligencia artificial · reglas y checklists · datos de componentes · método de armado · índice de las 48 fotos |
+| [Anexo G · Aplicaciones existentes](anexos/G-aplicaciones-existentes.md) | **89 aplicaciones y 112 funciones** relevadas: qué hace cada una, qué se tomó para la app y qué queda pendiente |
+| [La app](../../tableros-app/) | La página instalable ya construida, con sus instrucciones |
 | [datos/funciones.json](datos/funciones.json) | El catálogo de funciones como datos, para ordenarlo o pasarlo a tareas |
 
 ---

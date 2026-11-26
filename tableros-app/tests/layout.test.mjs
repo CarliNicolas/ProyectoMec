@@ -208,3 +208,130 @@ test('lista de materiales y CSV', () => {
   assert.equal(fmt(17.5), '17,5');
   assert.equal(fmt(72), '72');
 });
+
+// ---------------------------------------------------------------------------
+// Casos encontrados en la revisión de la app
+// ---------------------------------------------------------------------------
+test('lo que queda sin ubicar y no entra en ningún riel cuenta como "no entra"', () => {
+  const t = tableroBase();
+  t.placa = { ancho: 200, alto: 300 }; // riel de 100 mm
+  agregarRiel(t);
+  ['modulo-72', 'modulo-72', 'modulo-18'].forEach((x) => agregarItem(t, x));
+  const r = acomodar(t, cat, 'aprovechar');
+  const ev = evaluar(t, cat);
+  assert.equal(t.sinUbicar.length, 1);
+  assert.equal(ev.afuera, 1);
+  assert.equal(ev.estado, 'pasado');
+  assert.equal(r.ok, false);
+  assert.equal(r.estado, 'pasado');
+  assert.match(r.texto, /1 aparato no entra/);
+  // si hay lugar para ubicarlo a mano, queda en amarillo y no en rojo
+  const t2 = tableroBase();
+  agregarRiel(t2);
+  agregarItem(t2, 'modulo-18');
+  const ev2 = evaluar(t2, cat);
+  assert.equal(ev2.afuera, 0);
+  assert.equal(ev2.estado, 'justo');
+});
+
+test('el modo "llenando" no amontona en el último riel lo que entra en orden', () => {
+  const t = generarDesdePreseleccion('enfriador', { unidades: 5 });
+  t.placa.ancho = 660;
+  acomodar(t, cat, 'compacto');
+  assert.equal(evaluar(t, cat).cuenta.pasado, 0);
+  const m = generarDesdePreseleccion('motores', { motores: 7 });
+  acomodar(m, cat, 'compacto');
+  assert.equal(evaluar(m, cat).cuenta.pasado, 0);
+});
+
+test('el modo recomendado usa el lugar libre del riel de bornera si hace falta', () => {
+  [660, 650].forEach((ancho) => {
+    const t = generarDesdePreseleccion('enfriador', { unidades: 5 });
+    t.placa.ancho = ancho;
+    const r = acomodar(t, cat, 'equilibrado');
+    assert.equal(evaluar(t, cat).noEntran, 0, `ancho ${ancho}: ${r.texto}`);
+  });
+  // y los bornes que no entran en su riel pasan a los otros
+  const b = tableroBase();
+  b.placa = { ancho: 300, alto: 500 };
+  b.canalAbajo = false;
+  for (let i = 0; i < 3; i += 1) agregarRiel(b);
+  for (let i = 0; i < 4; i += 1) agregarItem(b, 'bornes-unidad');
+  acomodar(b, cat, 'equilibrado');
+  assert.equal(evaluar(b, cat).noEntran, 0);
+});
+
+test('riel con largo cargado a mano: se centra y no avisa de más', () => {
+  const t = tableroBase();
+  t.placa = { ancho: 600, alto: 600 };
+  for (let i = 0; i < 3; i += 1) agregarRiel(t);
+  t.rieles[0].largo = 600;
+  const g = geometria(t);
+  assert.equal(g.rieles[0].x0, 0);
+  assert.equal(g.rieles[1].x0, 50);
+  let ev = evaluar(t, cat);
+  assert.equal(ev.rieles[0].estado, 'ok');
+  t.rieles[0].largo = 560;
+  assert.equal(geometria(t).rieles[0].x0, 20);
+  t.rieles[0].largo = 650; // más largo que la placa: ahí sí avisa
+  ev = evaluar(t, cat);
+  assert.equal(ev.rieles[0].estado, 'pasado');
+  assert.equal(ev.estado, 'pasado');
+});
+
+test('preselección de motores: cada función en el riel de su nombre, para cualquier cantidad', () => {
+  [4, 6, 9, 12].forEach((m) => {
+    const t = generarDesdePreseleccion('motores', { motores: m });
+    acomodar(t, cat, 'equilibrado');
+    const ev = evaluar(t, cat);
+    assert.equal(ev.noEntran, 0, `${m} motores`);
+    const grupos = (i) => new Set(t.rieles[i].items.map((id) => cat[t.items[id].comp].grupo));
+    assert.ok(grupos(2).has('guardamotor') && grupos(2).size === 1, `${m}: riel de guardamotores`);
+    assert.ok(grupos(1).has('contactor') && !grupos(1).has('guardamotor'));
+    assert.ok(grupos(3).has('bornera') && grupos(3).size === 1);
+  });
+});
+
+test('con pocas funciones se llenan primero los rieles de arriba', () => {
+  const t = tableroBase();
+  for (let i = 0; i < 3; i += 1) agregarRiel(t);
+  agregarItem(t, 'easy9-mcb-4p');
+  for (let i = 0; i < 4; i += 1) agregarItem(t, 'jieli-c2');
+  acomodar(t, cat, 'equilibrado');
+  assert.ok(t.rieles[0].items.length > 0);
+  assert.equal(t.rieles[2].items.length, 0);
+});
+
+test('enfriador de 1 y 2 unidades entra con cualquier combinación de opciones', () => {
+  for (const n of [1, 2]) for (const fases of [false, true]) for (const shelly of [false, true]) for (const barraPE of [false, true]) for (const alarma of [false, true]) {
+    const t = generarDesdePreseleccion('enfriador', { unidades: n, fases, shelly, barraPE, alarma });
+    acomodar(t, cat, 'equilibrado');
+    assert.equal(evaluar(t, cat).noEntran, 0, JSON.stringify({ n, fases, shelly, barraPE, alarma }));
+  }
+});
+
+test('el mensaje distingue largo, alto y profundidad', () => {
+  const t = generarDesdePreseleccion('enfriador', { unidades: 5 });
+  t.profUtil = 90;
+  const r = acomodar(t, cat, 'equilibrado');
+  assert.match(r.texto, /no dejan cerrar la puerta/);
+  assert.doesNotMatch(r.texto, /otro modo/);
+  const a = tableroBase();
+  a.placa = { ancho: 600, alto: 400 };
+  for (let i = 0; i < 5; i += 1) agregarRiel(a);
+  agregarItem(a, 'jieli-c2');
+  const ra = acomodar(a, cat, 'equilibrado');
+  assert.match(ra.texto, /choca con el cablecanal/);
+});
+
+test('acomodar nunca pierde ni duplica aparatos', () => {
+  for (const n of [1, 3, 5, 8]) for (const m of MODOS) for (const ancho of [300, 500, 700]) {
+    const t = generarDesdePreseleccion('enfriador', { unidades: n });
+    t.placa.ancho = ancho;
+    t.rieles.forEach((r) => { r.largo = null; delete r.x0; });
+    acomodar(t, cat, m.id);
+    const todos = [...t.rieles.flatMap((r) => r.items), ...t.sinUbicar];
+    assert.equal(todos.length, Object.keys(t.items).length);
+    assert.equal(new Set(todos).size, todos.length);
+  }
+});

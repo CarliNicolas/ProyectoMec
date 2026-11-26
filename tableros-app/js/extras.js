@@ -56,9 +56,9 @@ function agrupar(piezas) {
  * Cortes de riel y de cablecanal para armar la placa.
  * cantidad = cuántos tableros iguales se van a armar (para cortar toda la serie junta).
  */
-export function listaDeCorte(t, { largoBarra = 2000, cantidad = 1 } = {}) {
+export function listaDeCorte(t, { largoBarra = 2000, cantidad = null } = {}) {
   const geo = geometria(t);
-  const veces = Math.max(1, Math.round(cantidad));
+  const veces = Math.max(1, Math.round(cantidad ?? t.cantidad ?? 1));
   const riel = [];
   const canal = [];
   for (let k = 0; k < veces; k += 1) {
@@ -171,10 +171,13 @@ export function costo(t, cat) {
   let sinPrecio = 0;
   let conPrecio = 0;
   Object.values(t.items).forEach((it) => {
-    const p = Number(compDe(cat, it.comp).precio);
+    const c = compDe(cat, it.comp);
+    if (c.hueco) return;
+    const p = Number(c.precio);
     if (Number.isFinite(p) && p > 0) { total += p; conPrecio += 1; } else sinPrecio += 1;
   });
-  return { total, sinPrecio, conPrecio };
+  const veces = Math.max(1, Math.round(t.cantidad || 1));
+  return { total, sinPrecio, conPrecio, cantidad: veces, totalSerie: total * veces };
 }
 
 // ---------------------------------------------------------------------------
@@ -202,4 +205,86 @@ export function agregarUnidad(t) {
   t.preseleccion.unidades = n;
   t.nombre = t.nombre.replace(/·\s*\d+\s+unidad(es)?/i, `· ${n} unidades`);
   return { unidad: n, ids: nuevos.map((x) => x.id) };
+}
+
+// ---------------------------------------------------------------------------
+// Renumerar etiquetas en orden de lectura (riel por riel, de izquierda a derecha)
+// ---------------------------------------------------------------------------
+export function renumerar(t) {
+  const orden = [];
+  t.rieles.forEach((r) => r.items.forEach((id) => orden.push(id)));
+  t.sinUbicar.forEach((id) => orden.push(id));
+  const contadores = new Map();
+  let cambios = 0;
+  orden.forEach((id) => {
+    const it = t.items[id];
+    const m = /^(.*?)(\d+)$/.exec(it.etiqueta || '');
+    if (!m) return;
+    const clave = `${it.comp}|${m[1]}`;
+    const n = (contadores.get(clave) || 0) + 1;
+    contadores.set(clave, n);
+    const nueva = `${m[1]}${n}`;
+    if (nueva !== it.etiqueta) { it.etiqueta = nueva; cambios += 1; }
+  });
+  return cambios;
+}
+
+// ---------------------------------------------------------------------------
+// Placa necesaria probando con un riel menos, los mismos y uno más
+// ---------------------------------------------------------------------------
+export function conRieles(t, k) {
+  const p = JSON.parse(JSON.stringify(t));
+  const n = p.rieles.length;
+  if (k === n) return p;
+  const dedicado = !p.canalAbajo && n > 1;
+  if (k > n) {
+    for (let i = n; i < k; i += 1) {
+      const r = { id: `r${Date.now().toString(36)}${i}${Math.floor(Math.random() * 1e6).toString(36)}`, nombre: `Riel ${i + 1}`, largo: null, items: [] };
+      if (dedicado) p.rieles.splice(p.rieles.length - 1, 0, r); else p.rieles.push(r);
+    }
+  } else {
+    while (p.rieles.length > Math.max(1, k)) {
+      const idx = dedicado && p.rieles.length > 1 ? p.rieles.length - 2 : p.rieles.length - 1;
+      const [fuera] = p.rieles.splice(idx, 1);
+      p.sinUbicar.push(...fuera.items);
+    }
+  }
+  return p;
+}
+
+export function placasPorRieles(t, cat, { modo = 'equilibrado', reserva = 0 } = {}) {
+  const n = t.rieles.length;
+  const res = [];
+  [n - 1, n, n + 1].filter((k) => k >= 1).forEach((k) => {
+    const pm = placaMinima(conRieles(t, k), cat, { modo, reserva });
+    if (pm) res.push({ ...pm, actual: k === n });
+  });
+  return res;
+}
+
+// ---------------------------------------------------------------------------
+// Texto del pedido de materiales, agrupado por marca, para mandar por WhatsApp o mail
+// ---------------------------------------------------------------------------
+export function textoPedido(t, cat) {
+  const veces = Math.max(1, Math.round(t.cantidad || 1));
+  const porMarca = new Map();
+  Object.values(t.items).forEach((it) => {
+    const c = compDe(cat, it.comp);
+    if (c.hueco) return;
+    const marca = c.marca || 'Sin marca';
+    const m = porMarca.get(marca) || new Map();
+    const f = m.get(c.id) || { comp: c, cantidad: 0 };
+    f.cantidad += veces;
+    m.set(c.id, f);
+    porMarca.set(marca, m);
+  });
+  const lineas = [`Pedido de materiales · ${t.nombre}${veces > 1 ? ` · ${veces} tableros` : ''}`, ''];
+  [...porMarca.keys()].sort().forEach((marca) => {
+    lineas.push(`${marca}:`);
+    [...porMarca.get(marca).values()].sort((a, b) => a.comp.nombre.localeCompare(b.comp.nombre)).forEach((f) => {
+      lineas.push(`  ${f.cantidad} × ${f.comp.nombre}${f.comp.ref ? ` (${f.comp.ref})` : ''}`);
+    });
+    lineas.push('');
+  });
+  return lineas.join('\n').trim();
 }

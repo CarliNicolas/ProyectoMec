@@ -22,12 +22,14 @@ function contraste(hex) {
   return l > 0.55 ? '#111' : '#fff';
 }
 
-export function crearVista2D(svg, { alSeleccionar, alSoltar, esBandeja }) {
+export function crearVista2D(svg, { alSeleccionar, alSoltar, esBandeja, estaBloqueado }) {
   let t = null;
   let ev = null;
   let sel = null;
+  let op = {};
   let arrastre = null;
   let capaArrastre = null;
+  let saltarClick = false; // el click que llega justo después de soltar un arrastre no debe cambiar la selección
 
   function aMM(e) {
     const p = svg.createSVGPoint();
@@ -36,8 +38,8 @@ export function crearVista2D(svg, { alSeleccionar, alSoltar, esBandeja }) {
     return m ? p.matrixTransform(m.inverse()) : { x: 0, y: 0 };
   }
 
-  function dibujar(tablero, evaluacion, seleccion) {
-    t = tablero; ev = evaluacion; sel = seleccion;
+  function dibujar(tablero, evaluacion, seleccion, opciones = {}) {
+    t = tablero; ev = evaluacion; sel = seleccion; op = opciones;
     while (svg.firstChild) svg.removeChild(svg.firstChild);
     if (!t) return;
     const { geo } = ev;
@@ -45,9 +47,14 @@ export function crearVista2D(svg, { alSeleccionar, alSoltar, esBandeja }) {
     const H = t.placa.alto;
     const extremo = Math.max(W, ...ev.rieles.map((r) => r.geo.x0 + Math.max(r.ocupado, r.largo)));
     const pad = Math.max(10, W * 0.02);
-    svg.setAttribute('viewBox', `${-pad} ${-pad} ${extremo + 2 * pad} ${H + 2 * pad}`);
-    svg.style.aspectRatio = `${extremo + 2 * pad} / ${H + 2 * pad}`;
     const fuente = Math.max(7, Math.min(15, W / 55));
+    // con las cotas a la vista se deja lugar alrededor de la placa
+    const mIzq = op.cotas ? fuente * 3.4 : 0;
+    const mArr = op.cotas ? fuente * 3.4 : 0;
+    const mDer = op.cotas ? fuente * 7 : 0;
+    const vb = [-pad - mIzq, -pad - mArr, extremo + 2 * pad + mIzq + mDer, H + 2 * pad + mArr];
+    svg.setAttribute('viewBox', vb.join(' '));
+    svg.style.aspectRatio = `${vb[2]} / ${vb[3]}`;
 
     const defs = el('defs');
     defs.innerHTML = `
@@ -76,6 +83,11 @@ export function crearVista2D(svg, { alSeleccionar, alSoltar, esBandeja }) {
       // riel DIN
       svg.appendChild(el('rect', { x: g.x0, y: g.yCentro - 17.5, width: g.largo, height: 35, fill: '#b9bfc6', stroke: '#868d95', 'stroke-width': 0.6, class: 'riel' }));
       svg.appendChild(el('line', { x1: g.x0, y1: g.yCentro, x2: g.x0 + g.largo, y2: g.yCentro, stroke: '#9aa1a9', 'stroke-width': 4, 'stroke-dasharray': '6 10' }));
+      // lugar que se pidió dejar libre
+      if (t.reserva > 0 && g.largo > 0) {
+        const ar = (g.largo * t.reserva) / 100;
+        svg.appendChild(el('rect', { x: g.x0 + g.largo - ar, y: g.yCentro - 24, width: ar, height: 48, fill: 'rgba(242,169,0,.14)', stroke: '#c98a00', 'stroke-width': 0.7, 'stroke-dasharray': '4 3' }));
+      }
       // tramo que se pasa del riel
       if (r.ocupado > r.largo + 0.05) {
         svg.appendChild(el('rect', { x: g.x0 + g.largo, y: g.y0, width: r.ocupado - r.largo, height: Math.max(g.alto, 35), fill: 'url(#rayas)' }));
@@ -101,7 +113,8 @@ export function crearVista2D(svg, { alSeleccionar, alSoltar, esBandeja }) {
         const x = g.x0 + e.x;
         const y = g.yCentro - e.alto / 2;
         const grupo = el('g', { class: `ap ${e.estado}${e.id === sel ? ' sel' : ''}`, transform: `translate(${x} ${y})`, 'data-id': e.id });
-        grupo.appendChild(el('rect', { width: e.ancho, height: e.alto, rx: 1.5, fill: e.comp.color || '#ddd', stroke: 'rgba(0,0,0,.45)', 'stroke-width': 0.6 }));
+        if (e.comp.hueco) grupo.appendChild(el('rect', { width: e.ancho, height: e.alto, rx: 1.5, fill: 'rgba(255,255,255,.45)', stroke: '#6b7280', 'stroke-width': 0.9, 'stroke-dasharray': '4 3' }));
+        else grupo.appendChild(el('rect', { width: e.ancho, height: e.alto, rx: 1.5, fill: e.comp.color || '#ddd', stroke: 'rgba(0,0,0,.45)', 'stroke-width': 0.6 }));
         const foto = urlFoto(e.comp.foto);
         if (foto) {
           const im = el('image', { width: e.ancho, height: e.alto, preserveAspectRatio: 'none' });
@@ -128,12 +141,45 @@ export function crearVista2D(svg, { alSeleccionar, alSoltar, esBandeja }) {
         if (e.estado !== 'ok') {
           grupo.appendChild(el('rect', { width: e.ancho, height: e.alto, rx: 1.5, fill: e.estado === 'pasado' ? 'url(#rayas)' : 'rgba(255,196,0,.40)', stroke: COLOR[e.estado], 'stroke-width': 2.4, class: 'marca' }));
         }
+        if (t.armado && t.armado[e.id]) {
+          // ya está montado en el tablero real
+          const rr = Math.max(3, Math.min(7.5, e.ancho * 0.3));
+          const cx = e.ancho - rr - 1.5;
+          const cy = rr + 1.5;
+          grupo.appendChild(el('circle', { cx, cy, r: rr, fill: '#16a34a', stroke: '#fff', 'stroke-width': 1 }));
+          grupo.appendChild(el('path', { d: `M${cx - rr * 0.45} ${cy} l${rr * 0.32} ${rr * 0.36} l${rr * 0.6} ${-rr * 0.72}`, fill: 'none', stroke: '#fff', 'stroke-width': rr * 0.28, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+        }
         grupo.appendChild(el('rect', { x: -1.5, y: -1.5, width: e.ancho + 3, height: e.alto + 3, rx: 2.5, fill: 'none', class: 'borde-sel' }));
         const titulo = el('title', {}, `${etiqueta ? `${etiqueta} · ` : ''}${e.comp.nombre} · ${fmt(e.ancho)} × ${fmt(e.alto)} mm${e.motivos.length ? `\n${e.motivos.join('\n')}` : ''}`);
         grupo.appendChild(titulo);
         svg.appendChild(grupo);
       });
     });
+
+    if (op.cotas) {
+      const azul = '#1d4ed8';
+      const gc = el('g', { class: 'cotas', 'pointer-events': 'none' });
+      const linea = (x1, y1, x2, y2) => gc.appendChild(el('line', { x1, y1, x2, y2, stroke: azul, 'stroke-width': 0.8 }));
+      const texto = (x, y, txt, extra = {}) => gc.appendChild(el('text', { x, y, 'font-size': fuente * 1.05, fill: azul, 'font-weight': 700, 'text-anchor': 'middle', 'dominant-baseline': 'central', ...extra }, txt));
+      // ancho de la placa
+      const ya = -mArr * 0.5;
+      linea(0, ya, W, ya); linea(0, ya - 4, 0, 0); linea(W, ya - 4, W, 0);
+      texto(W / 2, ya - fuente * 0.85, `${fmt(W)} mm`);
+      // alto de la placa
+      const xa = -mIzq * 0.5;
+      linea(xa, 0, xa, H); linea(xa - 4, 0, 0, 0); linea(xa - 4, H, 0, H);
+      gc.appendChild(el('text', { 'font-size': fuente * 1.05, fill: azul, 'font-weight': 700, 'text-anchor': 'middle', 'dominant-baseline': 'central', transform: `translate(${xa - fuente * 0.85} ${H / 2}) rotate(-90)` }, `${fmt(H)} mm`));
+      // por riel: altura del eje desde el borde de arriba, inicio desde la izquierda y largo
+      const xt = extremo + pad * 0.6;
+      ev.rieles.forEach((r) => {
+        const g = r.geo;
+        linea(g.x0 + g.largo, g.yCentro, xt, g.yCentro);
+        texto(xt + 2, g.yCentro - fuente * 1.3, `eje a ${fmt(g.yCentro)}`, { 'text-anchor': 'start' });
+        texto(xt + 2, g.yCentro, `inicio ${fmt(g.x0)}`, { 'text-anchor': 'start', 'font-weight': 500 });
+        texto(xt + 2, g.yCentro + fuente * 1.3, `largo ${fmt(g.largo)}`, { 'text-anchor': 'start', 'font-weight': 500 });
+      });
+      svg.appendChild(gc);
+    }
 
     capaArrastre = el('g', { class: 'capa-arrastre', 'pointer-events': 'none' });
     svg.appendChild(capaArrastre);
@@ -181,7 +227,7 @@ export function crearVista2D(svg, { alSeleccionar, alSoltar, esBandeja }) {
   }
 
   function empezar(id, comp, e) {
-    arrastre = { id, comp, x0: e.clientX, y0: e.clientY, activo: false, destino: null };
+    arrastre = { id, comp, x0: e.clientX, y0: e.clientY, activo: false, destino: null, bloqueado: !!(estaBloqueado && estaBloqueado()) };
   }
 
   function terminar(soltar) {
@@ -193,12 +239,12 @@ export function crearVista2D(svg, { alSeleccionar, alSoltar, esBandeja }) {
     if (capaArrastre) while (capaArrastre.firstChild) capaArrastre.removeChild(capaArrastre.firstChild);
     const g = svg.querySelector(`.ap[data-id="${a.id}"]`);
     if (g) g.classList.remove('fantasma');
+    if (a.activo) { saltarClick = true; setTimeout(() => { saltarClick = false; }, 400); }
     if (soltar && a.activo && a.destino) alSoltar(a.id, a.destino.riel, a.destino.indice);
-    else if (soltar && !a.activo) alSeleccionar(a.id);
   }
 
   function mover(e) {
-    if (!arrastre) return;
+    if (!arrastre || arrastre.bloqueado) return;
     if (!arrastre.activo) {
       if (Math.hypot(e.clientX - arrastre.x0, e.clientY - arrastre.y0) < 7) return;
       arrastre.activo = true;
@@ -218,6 +264,8 @@ export function crearVista2D(svg, { alSeleccionar, alSoltar, esBandeja }) {
     const id = g.getAttribute('data-id');
     const info = ev && ev.porItem[id];
     if (!info) return;
+    // Con el dedo solo se arrastra el aparato ya seleccionado: así deslizar para desplazar la pantalla no mueve nada.
+    if (e.pointerType === 'touch' && id !== sel) return;
     empezar(id, info.comp, e);
     try { svg.setPointerCapture(e.pointerId); } catch (err) { /* nada */ }
   });
@@ -229,8 +277,12 @@ export function crearVista2D(svg, { alSeleccionar, alSoltar, esBandeja }) {
   svg.addEventListener('pointercancel', () => terminar(false));
   // En pantallas táctiles, evita que la página se desplace mientras se arrastra un aparato.
   svg.addEventListener('touchmove', (e) => { if (arrastre) e.preventDefault(); }, { passive: false });
+  // La selección se hace en el "click" y no al levantar el dedo: si no, ese mismo toque
+  // terminaba apretando un botón de la ficha que aparece debajo.
   svg.addEventListener('click', (e) => {
-    if (!(e.target.closest && e.target.closest('.ap'))) alSeleccionar(null);
+    if (saltarClick) { saltarClick = false; return; }
+    const g = e.target.closest && e.target.closest('.ap');
+    alSeleccionar(g ? g.getAttribute('data-id') : null);
   });
 
   /** Arrastre iniciado fuera del plano (desde la bandeja "sin ubicar"), solo con mouse. */

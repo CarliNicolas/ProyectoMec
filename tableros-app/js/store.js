@@ -114,11 +114,19 @@ export function cambiar(fn, { deshacer = true, motivo = 'tablero' } = {}) {
 
 export function puedeDeshacer() { return historia.pasado.length > 0; }
 export function puedeRehacer() { return historia.futuro.length > 0; }
+// La foto y el avance del armado no forman parte del deshacer: se conservan los actuales.
+function restaurar(t, texto) {
+  const viejo = JSON.parse(texto);
+  viejo.foto = t.foto;
+  viejo.fotoPropia = t.fotoPropia;
+  viejo.armado = t.armado || {};
+  estado.tableros[t.id] = viejo;
+}
 export function deshacer() {
   const t = tablero();
   if (!t || !historia.pasado.length) return;
   historia.futuro.push(JSON.stringify(t));
-  estado.tableros[t.id] = JSON.parse(historia.pasado.pop());
+  restaurar(t, historia.pasado.pop());
   guardar();
   avisar('tablero');
 }
@@ -126,7 +134,7 @@ export function rehacer() {
   const t = tablero();
   if (!t || !historia.futuro.length) return;
   historia.pasado.push(JSON.stringify(t));
-  estado.tableros[t.id] = JSON.parse(historia.futuro.pop());
+  restaurar(t, historia.futuro.pop());
   guardar();
   avisar('tablero');
 }
@@ -320,7 +328,7 @@ function sanearComponente(c) {
     id, nombre: texto(c.nombre) || 'Componente', marca: texto(c.marca, 40), ref: texto(c.ref, 60),
     ancho: numero(c.ancho, 18, 1, 2000), alto: numero(c.alto, 85, 1, 2000), prof: numero(c.prof, 70, 1, 2000),
     grupo: texto(c.grupo, 20) || 'otros', color: colorSeguro(c.color), medida: c.medida === 'catalogo' ? 'catalogo' : c.medida === 'medida' ? 'medida' : 'estimada',
-    foto: fotoSegura(c.foto),
+    foto: fotoSegura(c.foto), precio: c.precio != null && Number(c.precio) > 0 ? numero(c.precio, 0, 0, 1e12) : undefined, hueco: c.hueco === true ? true : undefined,
   };
 }
 
@@ -343,13 +351,28 @@ function sanearTablero(o) {
   Object.keys(items).forEach((id) => { if (!usados.has(id)) sinUbicar.push(id); });
   const placa = o.placa || {};
   const canal = o.canal || {};
+  const armado = {};
+  if (o.armado && typeof o.armado === 'object') Object.keys(o.armado).slice(0, 3000).forEach((id) => { if (items[id] && o.armado[id]) armado[id] = true; });
+  const grupoOk = (g) => typeof g === 'string' && /^[a-z]{1,20}$/.test(g);
+  const ordenGrupos = Array.isArray(o.ordenGrupos) ? o.ordenGrupos.filter(grupoOk).slice(0, 20) : undefined;
+  let rielDeGrupo;
+  if (o.rielDeGrupo && typeof o.rielDeGrupo === 'object') {
+    rielDeGrupo = {};
+    Object.keys(o.rielDeGrupo).slice(0, 20).forEach((g) => { if (grupoOk(g) && Number.isInteger(o.rielDeGrupo[g])) rielDeGrupo[g] = numero(o.rielDeGrupo[g], 0, 0, 40); });
+  }
+  let preseleccion = null;
+  if (o.preseleccion && o.preseleccion.id === 'enfriador') {
+    const p = o.preseleccion;
+    preseleccion = { id: 'enfriador', unidades: Math.round(numero(p.unidades, 1, 1, 50)), fases: !!p.fases, shelly: !!p.shelly, alarma: !!p.alarma, barraPE: !!p.barraPE };
+  }
   return {
+    reserva: numero(o.reserva, 0, 0, 60), cantidad: Math.round(numero(o.cantidad, 1, 1, 999)), armado, ordenGrupos, rielDeGrupo,
     id: nuevoId('t'), version: 1, nombre: texto(o.nombre, 80) || 'Tablero',
     placa: { ancho: numero(placa.ancho, 600, 50, 20000), alto: numero(placa.alto, 600, 50, 20000) },
     canal: { ancho: numero(canal.ancho, 40, 0, 500), alto: numero(canal.alto, 60, 0, 500) },
     margen: numero(o.margen, 10, 0, 500), umbralJusto: numero(o.umbralJusto, 18, 0, 1000), holguraCanal: numero(o.holguraCanal, 10, 0, 500),
     profUtil: numero(o.profUtil, 0, 0, 5000), canalAbajo: o.canalAbajo !== false, rieles, items, sinUbicar,
-    foto: fotoSegura(o.foto) || null, fotoPropia: false, preseleccion: null, medidasEstimadas: !!o.medidasEstimadas, notas: texto(o.notas, 2000),
+    foto: fotoSegura(o.foto) || null, fotoPropia: false, preseleccion, medidasEstimadas: !!o.medidasEstimadas, notas: texto(o.notas, 2000),
   };
 }
 
@@ -364,4 +387,51 @@ export function importarPaquete(p) {
   });
   catCache = null;
   return agregarTablero(t);
+}
+
+// ------------------------------- copia de seguridad de todo -------------------------------
+/** Todos los tableros, las preselecciones propias y el catálogo propio en un solo archivo. Las fotos propias no viajan. */
+export function copiaCompleta() {
+  const sinFoto = (t) => { const c = JSON.parse(JSON.stringify(t)); if (c.foto && c.foto.startsWith('idb:')) { c.foto = null; c.fotoPropia = false; } return c; };
+  return {
+    app: 'tableros-mec', v: 1, tipo: 'copia', fecha: new Date().toISOString(),
+    tableros: listaTableros().map(sinFoto),
+    preselecciones: estado.preselecciones.map((p) => ({ nombre: p.nombre, tablero: sinFoto(p.tablero) })),
+    componentes: Object.values(estado.catalogo).map((c) => ({ ...c, foto: c.foto && c.foto.startsWith('idb:') ? undefined : c.foto })),
+  };
+}
+
+/** Agrega a este dispositivo lo que trae una copia. No borra ni pisa nada de lo que ya había, y no duplica lo que ya está. */
+export function restaurarCopia(p) {
+  if (!p || p.app !== 'tableros-mec' || p.tipo !== 'copia' || !Array.isArray(p.tableros)) throw new Error('El archivo no es una copia de seguridad de esta app.');
+  // Es una copia propia: también vuelven las correcciones a los componentes de fábrica (medidas y precios),
+  // salvo las que este dispositivo ya tenga cargadas.
+  (Array.isArray(p.componentes) ? p.componentes : []).slice(0, 500).forEach((c) => {
+    const limpio = sanearComponente(c);
+    if (limpio && !estado.catalogo[limpio.id]) estado.catalogo[limpio.id] = limpio;
+  });
+  catCache = null;
+  const huella = (t) => { const { id, foto, fotoPropia, armado, ...resto } = t; return JSON.stringify(resto); };
+  const limpio = (o) => { try { return sanearTablero(o); } catch (e) { return null; } };
+  const yaEstan = new Set(listaTableros().map(limpio).filter(Boolean).map(huella));
+  let n = 0;
+  p.tableros.slice(0, 200).forEach((o) => {
+    const t = limpio(o); // el que esté roto se saltea
+    if (!t || yaEstan.has(huella(t))) return;
+    yaEstan.add(huella(t));
+    estado.tableros[t.id] = t;
+    estado.orden.push(t.id);
+    n += 1;
+  });
+  const preYa = new Set(estado.preselecciones.map((x) => { const t = limpio(x.tablero); return t ? `${x.nombre}|${huella(t)}` : ''; }));
+  (Array.isArray(p.preselecciones) ? p.preselecciones : []).slice(0, 100).forEach((x) => {
+    const t = limpio(x && x.tablero);
+    const nombre = texto(x && x.nombre, 80) || 'Preselección';
+    if (!t || preYa.has(`${nombre}|${huella(t)}`)) return;
+    preYa.add(`${nombre}|${huella(t)}`);
+    estado.preselecciones.push({ id: nuevoId('p'), nombre, tablero: t });
+  });
+  guardar();
+  avisar('tableros');
+  return n;
 }

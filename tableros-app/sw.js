@@ -1,9 +1,9 @@
 // Service worker: guarda la app en el dispositivo para que funcione sin conexión.
 // Al publicar una versión nueva, cambiar VERSION para que los dispositivos la tomen.
-const VERSION = 'tableros-mec-v1';
+const VERSION = 'tableros-mec-v2';
 const ARCHIVOS = [
   './', 'index.html', 'styles.css', 'manifest.webmanifest',
-  'js/app.js', 'js/catalogo.js', 'js/layout.js', 'js/plantillas.js', 'js/store.js', 'js/vista2d.js', 'js/vista3d.js',
+  'js/app.js', 'js/catalogo.js', 'js/extras.js', 'js/hojas.js', 'js/layout.js', 'js/plantillas.js', 'js/store.js', 'js/vista2d.js', 'js/vista3d.js',
   'vendor/three.module.min.js', 'vendor/OrbitControls.js',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png',
   'img/tableros/enfriador-5u.jpg', 'img/tableros/enfriador-4u.jpg', 'img/tableros/enfriador-2u.jpg', 'img/tableros/gabinete-plastico.jpg',

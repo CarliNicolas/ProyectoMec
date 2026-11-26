@@ -32,8 +32,9 @@ export function geometria(t) {
     const y0 = yCanal + c;
     // El último riel, si no lleva canal debajo, queda fuera del marco: usa todo el ancho de la placa.
     const fueraDelMarco = !t.canalAbajo && n > 1 && i === n - 1;
-    const x0 = r.x0 != null ? r.x0 : fueraDelMarco ? m : x0Auto;
     const largo = r.largo != null ? r.largo : fueraDelMarco ? Math.max(0, t.placa.ancho - 2 * m) : largoAuto;
+    // Un riel con largo cargado a mano que no entra entre los canales verticales se centra en la placa.
+    const x0 = r.x0 != null ? r.x0 : fueraDelMarco ? m : largo <= largoAuto + EPS ? x0Auto : Math.max(0, (t.placa.ancho - largo) / 2);
     return { id: r.id, nombre: r.nombre, indice: i, x0, largo, y0, alto: altoFila, yCentro: y0 + altoFila / 2, yCanal, fueraDelMarco, largoAuto: r.largo == null };
   });
 
@@ -59,6 +60,11 @@ export function geometria(t) {
 //   justo  = entra, pero queda apretado (amarillo)
 //   pasado = no entra (rojo)
 // ---------------------------------------------------------------------------
+/** mm libres por debajo de los cuales un riel se considera justo: el mayor entre el umbral fijo y la reserva pedida. */
+export function umbralDe(t, largo) {
+  return Math.max(t.umbralJusto || 0, (largo * (t.reserva || 0)) / 100);
+}
+
 const PEOR = { ok: 0, justo: 1, pasado: 2 };
 const peor = (a, b) => (PEOR[a] >= PEOR[b] ? a : b);
 
@@ -81,7 +87,7 @@ export function evaluar(t, cat) {
       const comp = compDe(cat, it ? it.comp : '?');
       const sep = Math.max(0, (it && it.sep) || 0);
       x += sep;
-      const e = { id, it, comp, x, ancho: comp.ancho, alto: comp.alto, prof: comp.prof, estado: 'ok', motivos: [] };
+      const e = { id, it, comp, x, ancho: comp.ancho, alto: comp.alto, prof: comp.prof, estado: 'ok', motivos: [], causas: [] };
       x += comp.ancho;
 
       if (comp.desconocido) {
@@ -91,12 +97,18 @@ export function evaluar(t, cat) {
       const exceso = e.x + e.ancho - g.largo;
       if (exceso > EPS) {
         e.estado = 'pasado';
+        e.causas.push('largo');
         e.motivos.push(`No entra en el riel: se pasa ${fmt(exceso)} mm.`);
+      } else if (g.x0 + e.x + e.ancho > t.placa.ancho + EPS) {
+        e.estado = 'pasado';
+        e.causas.push('largo');
+        e.motivos.push('Queda fuera de la placa.');
       }
       if (g.alto > 0) {
         const libreV = (g.alto - comp.alto) / 2;
         if (libreV < -EPS) {
           e.estado = 'pasado';
+          e.causas.push('alto');
           e.motivos.push(`Choca con el cablecanal: mide ${fmt(comp.alto)} mm de alto y entre canales hay ${fmt(g.alto)} mm.`);
         } else if (libreV < t.holguraCanal - EPS) {
           e.estado = peor(e.estado, 'justo');
@@ -107,6 +119,7 @@ export function evaluar(t, cat) {
         const libreP = t.profUtil - comp.prof;
         if (libreP < -EPS) {
           e.estado = 'pasado';
+          e.causas.push('prof');
           e.motivos.push(`No cierra la puerta: mide ${fmt(comp.prof)} mm de profundidad y hay ${fmt(t.profUtil)} mm.`);
         } else if (libreP < 5) {
           e.estado = peor(e.estado, 'justo');
@@ -122,9 +135,10 @@ export function evaluar(t, cat) {
     if (libre < -EPS) {
       estadoRiel = 'pasado';
       mensajes.push(`Se pasa ${fmt(-libre)} mm.`);
-    } else if (items.length && libre < t.umbralJusto - EPS) {
+    } else if (items.length && libre < umbralDe(t, g.largo) - EPS) {
       estadoRiel = 'justo';
-      mensajes.push(`Queda justo: sobran ${fmt(Math.max(0, libre))} mm.`);
+      const pedida = (g.largo * (t.reserva || 0)) / 100;
+      mensajes.push(pedida > (t.umbralJusto || 0) ? `Queda justo: sobran ${fmt(Math.max(0, libre))} mm y la reserva pedida es de ${fmt(pedida)} mm.` : `Queda justo: sobran ${fmt(Math.max(0, libre))} mm.`);
       const ult = items[items.length - 1];
       if (ult.estado !== 'pasado') {
         ult.estado = peor(ult.estado, 'justo');
@@ -143,18 +157,24 @@ export function evaluar(t, cat) {
     return { id: r.id, nombre: r.nombre, indice: i, geo: g, largo: g.largo, ocupado, libre, estado: estadoRiel, mensajes, items };
   });
 
+  const libres = rieles.map((r) => Math.max(0, r.libre));
   const sinUbicar = t.sinUbicar.map((id) => {
     const it = t.items[id];
-    return { id, it, comp: compDe(cat, it ? it.comp : '?') };
+    const comp = compDe(cat, it ? it.comp : '?');
+    return { id, it, comp, entra: libres.some((l) => comp.ancho <= l + EPS) };
   });
+  // aparatos sin ubicar que no caben en el lugar libre de ningún riel
+  const afuera = sinUbicar.filter((e) => !e.entra).length;
+  const causas = { largo: 0, alto: 0, prof: 0 };
+  Object.values(porItem).forEach((e) => { if (e.estado === 'pasado') e.causas.forEach((c) => { causas[c] += 1; }); });
 
   let estado = 'ok';
   rieles.forEach((r) => { estado = peor(estado, r.estado); });
   avisos.forEach((a) => { estado = peor(estado, a.estado); });
-  if (cuenta.pasado > 0) estado = 'pasado';
-  else if (cuenta.justo > 0) estado = peor(estado, 'justo');
+  if (cuenta.pasado > 0 || afuera > 0) estado = 'pasado';
+  else if (cuenta.justo > 0 || sinUbicar.length > 0) estado = peor(estado, 'justo');
   const totalAparatos = rieles.reduce((s, r) => s + r.items.length, 0);
-  return { geo, rieles, sinUbicar, cuenta, avisos, porItem, estado, totalAparatos };
+  return { geo, rieles, sinUbicar, cuenta, avisos, porItem, estado, totalAparatos, afuera, causas, noEntran: cuenta.pasado + afuera };
 }
 
 // ---------------------------------------------------------------------------
@@ -172,14 +192,25 @@ export function ordenFuncional(t, cat) {
   t.rieles.forEach((r) => r.items.forEach((id) => actuales.push(id)));
   t.sinUbicar.forEach((id) => actuales.push(id));
   const pos = new Map(actuales.map((id, i) => [id, i]));
+  // Un tablero puede traer su propio orden de funciones (por ejemplo, contactores antes que guardamotores).
+  const orden = Array.isArray(t.ordenGrupos) && t.ordenGrupos.length ? t.ordenGrupos : ORDEN_GRUPOS;
   const grupoIdx = (id) => {
     const g = compDe(cat, t.items[id].comp).grupo;
-    const k = ORDEN_GRUPOS.indexOf(g);
-    return k < 0 ? ORDEN_GRUPOS.length : k;
+    const k = orden.indexOf(g);
+    return k < 0 ? orden.length + Math.max(0, ORDEN_GRUPOS.indexOf(g)) : k;
   };
-  // Dentro de un grupo se respeta el orden en que fueron cargados (el de la preselección).
+  // Dentro de un grupo: los componentes iguales van juntos, en el orden en que apareció cada modelo
+  // y, entre iguales, en el orden en que fueron cargados.
   const alta = new Map(Object.keys(t.items).map((id, i) => [id, i]));
-  return actuales.filter((id) => t.items[id]).sort((a, b) => grupoIdx(a) - grupoIdx(b) || (alta.get(a) - alta.get(b)) || (pos.get(a) - pos.get(b)));
+  const primera = new Map();
+  Object.values(t.items).forEach((it) => { if (!primera.has(it.comp)) primera.set(it.comp, alta.get(it.id)); });
+  // Los contactores van intercalados por unidad (SOP1, BOM1, SOP2...): se ordenan por el número de la etiqueta.
+  const numero = (id) => { const m = /(\d+)\s*$/.exec(t.items[id].etiqueta || ''); return m ? Number(m[1]) : Infinity; };
+  const intercalar = (id) => compDe(cat, t.items[id].comp).grupo === 'contactor';
+  return actuales.filter((id) => t.items[id]).sort((a, b) => grupoIdx(a) - grupoIdx(b)
+    || (primera.get(t.items[a].comp) - primera.get(t.items[b].comp))
+    || (intercalar(a) && intercalar(b) ? numero(a) - numero(b) : 0)
+    || (alta.get(a) - alta.get(b)) || (pos.get(a) - pos.get(b)));
 }
 
 function menor(a, b) {
@@ -195,7 +226,7 @@ function menor(a, b) {
  * Minimiza, en este orden: mm que no entran, rieles que quedan justos, grupos partidos, el riel más cargado
  * y, a igualdad, el reparto más parejo.
  */
-function repartir(ids, anchos, grupos, comps, caps, umbral) {
+function repartir(ids, anchos, grupos, comps, caps, umbrales) {
   const M = ids.length;
   const R = caps.length;
   const pre = new Array(M + 1).fill(0);
@@ -214,12 +245,13 @@ function repartir(ids, anchos, grupos, comps, caps, umbral) {
   for (let k = 1; k <= R; k += 1) {
     const cap = caps[k - 1];
     for (let i = 0; i <= M; i += 1) {
-      for (let j = 0; j <= i; j += 1) {
+      // de mayor a menor: a igualdad de costo se llenan primero los rieles de arriba
+      for (let j = i; j >= 0; j -= 1) {
         const ant = mejor[k - 1][j];
         if (ant[0] === Infinity) continue;
         const carga = pre[i] - pre[j];
         const pasa = Math.max(0, carga - cap);
-        const justo = carga > 0 && pasa === 0 && cap - carga < umbral ? 1 : 0;
+        const justo = carga > 0 && pasa === 0 && cap - carga < umbrales[k - 1] ? 1 : 0;
         const lleno = cap > 0 ? carga / cap : carga > 0 ? 9 : 0;
         const c = [ant[0] + pasa, ant[1] + justo, ant[2] + (j < i ? corte(j) : 0), Math.max(ant[3], lleno), ant[4] + lleno * lleno];
         if (menor(c, mejor[k][i])) {
@@ -240,25 +272,33 @@ function repartir(ids, anchos, grupos, comps, caps, umbral) {
 }
 
 function llenar(ids, anchos, grupos, caps) {
-  // Completa cada riel en orden; si un grupo entero no entra en lo que queda y sí entra en un riel vacío, pasa al siguiente.
+  // Completa cada riel en orden. Se prueban dos formas y se elige la que menos se pasa:
+  // pasando al riel siguiente cuando una función entera no entra en lo que queda, o aparato por aparato.
   const R = caps.length;
-  const filas = new Array(R).fill(null).map(() => []);
-  let k = 0;
-  let usado = 0;
-  let i = 0;
-  while (i < ids.length) {
-    let f = i;
-    let anchoGrupo = 0;
-    while (f < ids.length && grupos[f] === grupos[i]) { anchoGrupo += anchos[f]; f += 1; }
-    if (k < R - 1 && usado > 0 && usado + anchoGrupo > caps[k] + EPS && anchoGrupo <= caps[k + 1] + EPS) { k += 1; usado = 0; }
-    for (let j = i; j < f; j += 1) {
-      if (k < R - 1 && usado + anchos[j] > caps[k] + EPS) { k += 1; usado = 0; }
-      filas[k].push(ids[j]);
-      usado += anchos[j];
+  const ancho = new Map(ids.map((id, i) => [id, anchos[i]]));
+  const sePasa = (filas) => filas.reduce((s, f, k) => s + Math.max(0, f.reduce((a, id) => a + ancho.get(id), 0) - caps[k]), 0);
+  const armar = (porFuncion) => {
+    const filas = new Array(R).fill(null).map(() => []);
+    let k = 0;
+    let usado = 0;
+    let i = 0;
+    while (i < ids.length) {
+      let f = i;
+      let anchoGrupo = 0;
+      while (f < ids.length && grupos[f] === grupos[i]) { anchoGrupo += anchos[f]; f += 1; }
+      if (porFuncion && k < R - 1 && usado > 0 && usado + anchoGrupo > caps[k] + EPS && anchoGrupo <= caps[k + 1] + EPS) { k += 1; usado = 0; }
+      for (let j = i; j < f; j += 1) {
+        if (k < R - 1 && usado + anchos[j] > caps[k] + EPS) { k += 1; usado = 0; }
+        filas[k].push(ids[j]);
+        usado += anchos[j];
+      }
+      i = f;
     }
-    i = f;
-  }
-  return filas;
+    return filas;
+  };
+  const a = armar(true);
+  const b = armar(false);
+  return sePasa(a) <= sePasa(b) + EPS ? a : b;
 }
 
 function aprovechar(ids, anchos, comps, caps) {
@@ -293,53 +333,80 @@ export function acomodar(t, cat, modo = 'equilibrado') {
   const geo = geometria(t);
   const caps = geo.rieles.map((r) => r.largo);
 
-  // Si el último riel está fuera del marco de cablecanal (riel de bornera), se reserva para los bornes.
   const R = caps.length;
-  const ultimo = geo.rieles[R - 1];
-  const esBorne = grupos.map((g) => g === 'bornera');
-  const dedicado = R > 1 && ultimo.fueraDelMarco && esBorne.some(Boolean);
-  const sel = (cond) => ids.map((_, i) => i).filter(cond);
-  const resto = dedicado ? sel((i) => !esBorne[i]) : sel(() => true);
-  const bornes = dedicado ? sel((i) => esBorne[i]) : [];
+  const todos = ids.map((_, i) => i);
   const de = (arr, idx) => idx.map((i) => arr[i]);
-  const capsResto = dedicado ? caps.slice(0, R - 1) : caps;
+  const armar = (idx, capsX) => {
+    if (modo === 'compacto') return { filas: llenar(de(ids, idx), de(anchos, idx), de(grupos, idx), capsX), sobran: [] };
+    if (modo === 'aprovechar') return aprovechar(de(ids, idx), de(anchos, idx), de(comps, idx), capsX);
+    return { filas: repartir(de(ids, idx), de(anchos, idx), de(grupos, idx), de(comps, idx), capsX, capsX.map((c) => umbralDe(t, c))), sobran: [] };
+  };
+  const anchoDe = new Map(ids.map((id, i) => [id, anchos[i]]));
+  // mm que no entran: lo que se pasa de cada riel más lo que quedó sin ubicar
+  const falta = (r) => r.filas.reduce((s, f, k) => s + Math.max(0, f.reduce((a, id) => a + anchoDe.get(id), 0) - caps[k]), 0)
+    + r.sobran.reduce((a, id) => a + anchoDe.get(id), 0);
 
-  let filas;
-  let sobran = [];
-  if (modo === 'compacto') filas = llenar(de(ids, resto), de(anchos, resto), de(grupos, resto), capsResto);
-  else if (modo === 'aprovechar') ({ filas, sobran } = aprovechar(de(ids, resto), de(anchos, resto), de(comps, resto), capsResto));
-  else filas = repartir(de(ids, resto), de(anchos, resto), de(grupos, resto), de(comps, resto), capsResto, t.umbralJusto);
+  // Una preselección puede fijar en qué riel va cada función (t.rielDeGrupo). Se respeta si así entra todo.
+  const fijo = () => {
+    const mapa = t.rielDeGrupo;
+    if (!mapa || modo === 'aprovechar') return null;
+    const filas = new Array(R).fill(null).map(() => []);
+    for (const i of todos) {
+      const k = mapa[grupos[i]];
+      if (!Number.isInteger(k) || k < 0 || k >= R) return null;
+      filas[k].push(ids[i]);
+    }
+    return { filas, sobran: [] };
+  };
+  const porFuncion = fijo();
+
+  // Si el último riel está fuera del marco de cablecanal (riel de bornera), se reserva para los bornes...
+  const esBorne = grupos.map((g) => g === 'bornera');
+  const dedicado = R > 1 && geo.rieles[R - 1].fueraDelMarco && esBorne.some(Boolean);
+  let res;
   if (dedicado) {
-    filas.push(de(ids, bornes));
-    if (sobran.length) {
-      // lo que no entró arriba se prueba en el lugar que quede en el riel de bornera
-      let usado = de(anchos, bornes).reduce((a, b) => a + b, 0);
-      sobran = sobran.filter((id) => {
-        const a = anchos[ids.indexOf(id)];
-        if (usado + a <= caps[R - 1] + EPS) { filas[R - 1].push(id); usado += a; return false; }
+    res = armar(todos.filter((i) => !esBorne[i]), caps.slice(0, R - 1));
+    res.filas.push(de(ids, todos.filter((i) => esBorne[i])));
+    if (res.sobran.length) {
+      let usado = res.filas[R - 1].reduce((a, id) => a + anchoDe.get(id), 0);
+      res.sobran = res.sobran.filter((id) => {
+        if (usado + anchoDe.get(id) <= caps[R - 1] + EPS) { res.filas[R - 1].push(id); usado += anchoDe.get(id); return false; }
         return true;
       });
     }
+    // ...pero si así algo no entra, se usa también el lugar libre de ese riel (o de los otros para los bornes).
+    if (falta(res) > EPS) {
+      const libre = armar(todos, caps);
+      if (falta(libre) < falta(res) - EPS) res = libre;
+    }
+  } else {
+    res = armar(todos, caps);
   }
+  if (porFuncion && falta(porFuncion) <= falta(res) + EPS) res = porFuncion;
 
   ids.forEach((id) => { t.items[id].sep = 0; });
-  t.rieles.forEach((r, i) => { r.items = filas[i] || []; });
-  t.sinUbicar = sobran;
+  t.rieles.forEach((r, i) => { r.items = res.filas[i] || []; });
+  t.sinUbicar = res.sobran;
 
   const ev = evaluar(t, cat);
   const total = anchos.reduce((s, a) => s + a, 0);
   const capTotal = caps.reduce((s, a) => s + a, 0);
-  const noEntran = ev.cuenta.pasado + sobran.length;
-  let texto;
+  const noEntran = ev.noEntran;
+  const partes = [];
   if (noEntran > 0) {
-    const falta = Math.max(0, total - capTotal);
-    texto = `${noEntran} ${noEntran === 1 ? 'aparato no entra' : 'aparatos no entran'}.` + (falta > 0 ? ` Faltan ${fmt(falta)} mm de riel: agrandá la placa, agregá un riel o sacá componentes.` : ' Probá con otro modo de acomodado o mové alguno a mano.');
+    partes.push(`${noEntran} ${noEntran === 1 ? 'aparato no entra' : 'aparatos no entran'}.`);
+    if (ev.causas.largo + ev.afuera > 0) {
+      const faltan = Math.max(0, total - capTotal);
+      partes.push(faltan > 0 ? `Faltan ${fmt(faltan)} mm de riel: agrandá la placa, agregá un riel o sacá componentes.` : 'El largo total alcanza: probá con otro modo de acomodado o mové alguno a mano.');
+    }
+    if (ev.causas.alto > 0) partes.push(`${ev.causas.alto} ${ev.causas.alto === 1 ? 'choca' : 'chocan'} con el cablecanal: hace falta más alto de placa o un riel menos.`);
+    if (ev.causas.prof > 0) partes.push(`${ev.causas.prof} no ${ev.causas.prof === 1 ? 'deja' : 'dejan'} cerrar la puerta: hace falta más profundidad.`);
   } else if (ev.cuenta.justo > 0) {
-    texto = 'Entra todo, pero hay lugares que quedan justos (en amarillo).';
+    partes.push('Entra todo, pero hay lugares que quedan justos (en amarillo).');
   } else {
-    texto = 'Entra todo con lugar.';
+    partes.push('Entra todo con lugar.');
   }
-  return { ok: noEntran === 0, texto, total, capTotal, noEntran, justos: ev.cuenta.justo };
+  return { ok: noEntran === 0, texto: partes.join(' '), total, capTotal, noEntran, justos: ev.cuenta.justo, estado: ev.estado };
 }
 
 // ---------------------------------------------------------------------------

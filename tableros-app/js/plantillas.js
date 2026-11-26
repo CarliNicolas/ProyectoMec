@@ -18,6 +18,9 @@ export function tableroBase(nombre = 'Tablero nuevo') {
     canal: { ancho: 40, alto: 60 },
     margen: 10, // mm entre el borde de la placa y el cablecanal
     umbralJusto: 18, // si sobran menos mm que esto en un riel, avisa en amarillo (18 mm = un módulo)
+    reserva: 0, // porcentaje de cada riel que tiene que quedar libre; por debajo avisa en amarillo
+    cantidad: 1, // cuántos tableros iguales se van a armar (para compras y cortes)
+    armado: {}, // aparatos ya montados en el tablero real: { idDelAparato: true }
     holguraCanal: 10, // mm mínimos entre un aparato y el cablecanal, arriba y abajo
     profUtil: 0, // profundidad libre hasta la puerta; 0 = no controlar
     canalAbajo: true, // cablecanal debajo del último riel
@@ -100,11 +103,18 @@ function enfriador(p) {
   // --- placa y rieles ---
   if (chico) {
     // Como el tablero de 2 unidades terminado: 3 rieles, bornera y contactores en el mismo riel.
-    t.placa = { ancho: n === 2 ? 500 : 400, alto: 540 };
+    // El ancho sale del riel más cargado con las opciones elegidas (500 mm para 2 unidades sin opciones).
     t.margen = 5;
+    const lados = 2 * (t.canal.ancho + t.margen);
+    const fila1 = 211 + 45 * n + (op.fases ? 126 : 0) + 35.5 * n + 18 + (op.alarma ? 18 : 0);
+    const fila2 = 71.5 * n + 36 + 70 * n + (op.shelly ? 48 : 0) + 27 * (n + 1);
+    const fila3 = (op.barraPE ? 20 : 0) + 90 * n + 61 + 77 * n + 39; // este riel no lleva canal a la izquierda
+    const ancho = Math.max(n === 2 ? 500 : 400, Math.ceil((Math.max(fila1 + lados, fila2 + lados, fila3 + lados - t.canal.ancho) + 2) / 10) * 10);
+    t.placa = { ancho, alto: 540 };
     agregarRiel(t, 'Protecciones');
     agregarRiel(t, 'Control');
-    agregarRiel(t, 'Contactores y bornera', n === 2 ? 450 : null);
+    const r3 = agregarRiel(t, 'Contactores y bornera', ancho - lados + t.canal.ancho);
+    r3.x0 = t.margen;
     t.foto = n === 2 ? 'img/tableros/enfriador-2u.jpg' : null;
   } else {
     const fila1 = 211 + 45 * n + (op.fases ? 126 : 0);
@@ -142,8 +152,16 @@ function motores(p) {
   ['R', 'S', 'T', 'N', 'PE'].forEach((e) => agregarItem(t, 'borne-acometida', e));
   varios(t, 'bornes-motor', m, (i) => `M${i}`);
   agregarItem(t, 'shelly-gen4', 'SHELLY');
-  t.placa = { ancho: 430, alto: 780 };
   t.margen = 5;
+  // Orden propio de este tablero: protección y tiempos, contactores, guardamotores y bornera.
+  t.ordenGrupos = ['cabecera', 'termica', 'control', 'contactor', 'fases', 'guardamotor', 'bornera'];
+  t.rielDeGrupo = { cabecera: 0, termica: 0, control: 0, contactor: 1, fases: 1, guardamotor: 2, bornera: 3 };
+  const lados = 2 * (t.canal.ancho + t.margen);
+  const fila1 = 72 + 72 + 36 + 22.5 * grupos + 18 + 48;
+  const fila2 = 54 * grupos + 18;
+  const fila3 = 45 * m;
+  const fila4 = 61 + 23 * m;
+  t.placa = { ancho: Math.max(430, Math.ceil((Math.max(fila1, fila2, fila3, fila4) + 18 + lados) / 10) * 10), alto: 780 };
   ['Protección y tiempos', 'Contactores', 'Guardamotores', 'Bornera'].forEach((nom) => agregarRiel(t, nom));
   t.foto = 'img/tableros/gabinete-plastico.jpg';
   return t;

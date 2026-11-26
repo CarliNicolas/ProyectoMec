@@ -112,3 +112,73 @@ test('agregar una unidad más', () => {
   assert.equal(cuenta('logo-230rce'), 5);
   assert.equal(puedeAgregarUnidad(tableroBase()), false);
 });
+
+test('renumerar en orden de lectura, por componente y prefijo', async () => {
+  const { renumerar } = await import('../js/extras.js');
+  const { colocarItem } = await import('../js/layout.js');
+  const t = generarDesdePreseleccion('enfriador', { unidades: 3 });
+  acomodar(t, cat, 'equilibrado');
+  // se invierte el orden de los guardamotores
+  const gms = t.rieles[0].items.filter((id) => t.items[id].comp === 'gv2me08');
+  const pos = t.rieles[0].items.indexOf(gms[0]);
+  colocarItem(t, gms[2], 0, pos);
+  assert.deepEqual(t.rieles[0].items.filter((id) => t.items[id].comp === 'gv2me08').map((id) => t.items[id].etiqueta), ['SOP3', 'SOP1', 'SOP2']);
+  const cambios = renumerar(t);
+  assert.equal(cambios, 3);
+  assert.deepEqual(t.rieles[0].items.filter((id) => t.items[id].comp === 'gv2me08').map((id) => t.items[id].etiqueta), ['SOP1', 'SOP2', 'SOP3']);
+  // los contactores SOP conservan su propia numeración
+  const cont = Object.values(t.items).filter((i) => i.comp === 'lc1e0910' && /^SOP/.test(i.etiqueta)).map((i) => i.etiqueta).sort();
+  assert.deepEqual(cont, ['SOP1', 'SOP2', 'SOP3']);
+  assert.equal(renumerar(t), 0);
+});
+
+test('placa necesaria con un riel menos, igual y uno más', async () => {
+  const { placasPorRieles, conRieles } = await import('../js/extras.js');
+  const t = generarDesdePreseleccion('enfriador', { unidades: 5 });
+  acomodar(t, cat, 'equilibrado');
+  const ops = placasPorRieles(t, cat);
+  assert.deepEqual(ops.map((o) => o.rieles), [4, 5, 6]);
+  assert.ok(ops[0].ancho > ops[1].ancho && ops[1].ancho > ops[2].ancho, 'menos rieles, placa más ancha');
+  assert.ok(ops[0].alto < ops[1].alto && ops[1].alto < ops[2].alto, 'menos rieles, placa más baja');
+  assert.ok(ops[1].actual);
+  const p = conRieles(t, 6);
+  assert.equal(p.rieles.length, 6);
+  assert.equal(p.rieles[5].nombre, 'Bornera');
+  assert.equal(conRieles(t, 3).rieles.length, 3);
+  assert.equal(t.rieles.length, 5);
+});
+
+test('texto del pedido agrupado por marca y multiplicado por la serie', async () => {
+  const { textoPedido } = await import('../js/extras.js');
+  const t = generarDesdePreseleccion('enfriador', { unidades: 2 });
+  t.cantidad = 3;
+  const txt = textoPedido(t, cat);
+  assert.match(txt, /3 tableros/);
+  assert.match(txt, /Schneider:/);
+  assert.match(txt, /12 × Contactor 9 A/);
+});
+
+test('reserva de espacio: amarillo aunque sobre más de un módulo', async () => {
+  const { umbralDe } = await import('../js/layout.js');
+  const t = generarDesdePreseleccion('enfriador', { unidades: 5 });
+  acomodar(t, cat, 'equilibrado');
+  assert.equal(evaluar(t, cat).estado, 'ok');
+  t.reserva = 20;
+  assert.equal(umbralDe(t, 600), 120);
+  const ev = evaluar(t, cat);
+  assert.equal(ev.estado, 'justo');
+  assert.equal(ev.cuenta.pasado, 0);
+  assert.match(ev.rieles[0].mensajes[0], /reserva pedida es de 120 mm/);
+});
+
+test('agregar una unidad deja juntos los componentes iguales al acomodar', () => {
+  const t = generarDesdePreseleccion('enfriador', { unidades: 4 });
+  acomodar(t, cat, 'equilibrado');
+  agregarUnidad(t);
+  t.placa = { ancho: 700, alto: 950 };
+  acomodar(t, cat, 'equilibrado');
+  const etiquetas = (c) => t.rieles.flatMap((r) => r.items).filter((id) => t.items[id].comp === c).map((id) => t.items[id].etiqueta);
+  assert.deepEqual(etiquetas('gv2me08'), ['SOP1', 'SOP2', 'SOP3', 'SOP4', 'SOP5']);
+  assert.deepEqual(etiquetas('lc1e0910'), ['SOP1', 'BOM1', 'SOP2', 'BOM2', 'SOP3', 'BOM3', 'SOP4', 'BOM4', 'SOP5', 'BOM5']);
+  assert.equal(evaluar(t, cat).cuenta.pasado, 0);
+});
