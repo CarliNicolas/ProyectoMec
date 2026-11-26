@@ -1,0 +1,2450 @@
+[
+ {
+  "codigo": "REL-01",
+  "modulo": "relevamiento",
+  "nombre": "Asistente de relevamiento de placa",
+  "descripcion": "Guía paso a paso para cargar ancho y alto de la placa, altura y largo de cada riel y cada tramo de cablecanal, con foto de respaldo por cota y chequeo de escuadra midiendo las diagonales.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "REL-02",
+  "modulo": "relevamiento",
+  "nombre": "Importar fotos ya sacadas",
+  "descripcion": "Las fotos que ya están en la galería del iPhone se asignan a un tablero, un ejemplar y una etapa, sin tener que volver a sacarlas.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "REL-03",
+  "modulo": "relevamiento",
+  "nombre": "Ortofoto rectificada como calco de fondo",
+  "descripcion": "Se marcan las 4 esquinas de la placa en una foto del iPhone; la app la rectifica con las medidas cargadas y la muestra semitransparente bajo el editor para calcar posiciones reales.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "REL-04",
+  "modulo": "relevamiento",
+  "nombre": "Tarjeta de escala para fotos",
+  "descripcion": "La app ofrece una tarjeta imprimible con escala y código; al fotografiar pide incluirla y la usa para dimensionar y para identificar el tablero en la foto.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "REL-05",
+  "modulo": "relevamiento",
+  "nombre": "Biblioteca de gabinetes y bandejas medidas",
+  "descripcion": "Guarda cada gabinete o placa suelta (marca, modelo, medidas reales de bandeja, profundidad útil hasta la puerta, bulones) como plantilla reutilizable para toda la serie.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "REL-06",
+  "modulo": "relevamiento",
+  "nombre": "Control de escala con regla testigo",
+  "descripcion": "Tras rectificar la foto, la app mide una regla de acero apoyada en la placa y avisa si el error supera 2 mm, para repetir la toma.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "REL-07",
+  "modulo": "relevamiento",
+  "nombre": "Cotas dibujadas sobre la foto",
+  "descripcion": "Se tocan dos puntos de cualquier foto y se escribe la medida real; la cota queda dibujada sobre la imagen como registro del relevamiento.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "REL-08",
+  "modulo": "relevamiento",
+  "nombre": "Foto guiada con referencia de escala",
+  "descripcion": "Al fotografiar la placa, la app muestra un marco para encuadrar de frente y pide apoyar una regla o tarjeta patrón. No guarda hasta confirmar que la referencia se ve.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "REL-09",
+  "modulo": "relevamiento",
+  "nombre": "Medidas de placa por dictado",
+  "descripcion": "Formulario de pocos campos en orden fijo (ancho, alto, altura de cada riel, tramos de canal) que acepta dictado o teclado numérico gigante. El dibujo se actualiza al cargar cada valor.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "REL-10",
+  "modulo": "relevamiento",
+  "nombre": "Zonas prohibidas y profundidad útil",
+  "descripcion": "Sobre la placa se dibujan zonas donde no va nada (bulones, bisagras, entrada de cables) y se carga la profundidad hasta la puerta; el editor impide ocupar esas zonas o superar esa profundidad.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "REL-11",
+  "modulo": "relevamiento",
+  "nombre": "Marcadores impresos para ortofoto automática",
+  "descripcion": "Cuatro marcadores tipo ArUco pegados en las esquinas de la placa permiten rectificar la foto sin tocar las esquinas a mano.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "REL-12",
+  "modulo": "relevamiento",
+  "nombre": "Relevamiento de gabinete y puerta",
+  "descripcion": "Ficha del gabinete completo: medidas exteriores e interiores, profundidad, puerta, visor, bisagras, cerradura, grado IP y lado de entrada de cables.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "REL-13",
+  "modulo": "relevamiento",
+  "nombre": "Medición con LiDAR o realidad aumentada",
+  "descripcion": "Medir gabinetes grandes con el sensor del iPhone. Precisión de ±1 cm: sirve para el gabinete, no para componentes.",
+  "fase": "Futuro",
+  "impacto": "bajo",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "CAT-01",
+  "modulo": "catalogo",
+  "nombre": "Alta rápida de componente desde el banco",
+  "descripcion": "Foto frontal, código y tres medidas con calibre en menos de un minuto, guiado paso a paso. Queda marcado como incompleto para terminar la ficha después en la PC.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "CAT-02",
+  "modulo": "catalogo",
+  "nombre": "Ficha de componente con foto y medidas",
+  "descripcion": "Alta desde el celular: referencia, marca, ancho, alto, profundidad, módulos DIN, eje de riel y fijación, más foto frontal rectificada. Cada medida guarda su origen (calibre u hoja de datos) y fecha.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "CAT-03",
+  "modulo": "catalogo",
+  "nombre": "Catálogo semilla del tablero MEC",
+  "descripcion": "Precarga los ~25 componentes del enfriador (GV2ME08, LC1E0910, LOGO! 230RCE, Easy9, RXM con zócalo, bornes) con las medidas ya investigadas, marcadas 'sin verificar' hasta confirmarlas con calibre.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAT-04",
+  "modulo": "catalogo",
+  "nombre": "Importación masiva desde planilla",
+  "descripcion": "Carga de muchos componentes de una vez desde Excel o CSV con columnas fijas (marca, referencia, ancho, alto, profundidad, precio).",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAT-05",
+  "modulo": "catalogo",
+  "nombre": "Buscador y filtros del catálogo",
+  "descripcion": "Buscar por nombre, marca o referencia y filtrar por tipo, ancho en módulos, favoritos y usados recientemente.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAT-06",
+  "modulo": "catalogo",
+  "nombre": "Conjuntos y accesorios vinculados",
+  "descripcion": "Permite definir conjuntos que se colocan y se listan juntos: relé RXM más zócalo, guardamotor más contacto auxiliar, Shelly más soporte DIN, bornes con tapa final y topes.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAT-07",
+  "modulo": "catalogo",
+  "nombre": "Holguras y reglas de montaje por ficha",
+  "descripcion": "Cada ficha admite separación lateral, superior e inferior, orientación permitida y distancia mínima al cablecanal; el editor las dibuja como halo alrededor del aparato.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAT-08",
+  "modulo": "catalogo",
+  "nombre": "Varias fotos por componente",
+  "descripcion": "Además del frente: lateral, placa de características, bornes y foto con escala; cada una con su rol.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAT-09",
+  "modulo": "catalogo",
+  "nombre": "Estado, sucesor y sustitutos aprobados",
+  "descripcion": "Marca cada referencia como vigente o discontinuada, con su sucesor y los sustitutos que el proyectista aprobó; al reemplazar, la app revalida medidas, bornes y tensión de bobina.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "CAT-10",
+  "modulo": "catalogo",
+  "nombre": "Leer el código impreso del aparato",
+  "descripcion": "La cámara lee el QR, DataMatrix o código de barras del aparato y lo busca en el catálogo; si no existe, propone darlo de alta.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAT-11",
+  "modulo": "catalogo",
+  "nombre": "Piezas propias con instructivo de fabricación",
+  "descripcion": "Ficha para piezas hechas en el taller, como el soporte del Shelly: foto, croquis acotado, material y pasos. Se agrega al layout y a la lista de materiales como cualquier componente.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAT-12",
+  "modulo": "catalogo",
+  "nombre": "Zona de etiqueta por componente",
+  "descripcion": "En la ficha de cada aparato se marca sobre la foto dónde va la etiqueta SOPn/BOMn para no tapar modelo ni regulación. El montaje guiado muestra ese lugar.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAT-13",
+  "modulo": "catalogo",
+  "nombre": "Perfil lateral escalonado",
+  "descripcion": "En lugar de una caja simple, el aparato se modela con el perfil típico de riel DIN (cuerpo ancho, frente angosto) para un 3D más fiel.",
+  "fase": "F2-Taller",
+  "impacto": "bajo",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "CAT-14",
+  "modulo": "catalogo",
+  "nombre": "Editor de bornes sobre la foto",
+  "descripcion": "Tocando la foto frontal se marca cada borne con nombre (1L1, A1, I3, Q2), tipo, rango de sección, conductores admitidos, par de apriete y largo de pelado.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "CAT-15",
+  "modulo": "catalogo",
+  "nombre": "Catálogo de cables y consumibles",
+  "descripcion": "Cables por sección y color con diámetro exterior, punteras por sección y color, termocontraíble, precintos y bases, con unidad de compra.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAT-16",
+  "modulo": "catalogo",
+  "nombre": "Componentes de puerta y frente",
+  "descripcion": "Pulsadores, pilotos, selectoras, parada de emergencia y pantallas, con diámetro de perforado y profundidad detrás de la puerta.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "CAT-17",
+  "modulo": "catalogo",
+  "nombre": "Datos de conexión por borne",
+  "descripcion": "Cada borne del catálogo guarda largo de pelado, puntera admitida, sección máxima, torque y punta de destornillador. El paso de cableado los muestra sin abrir ninguna hoja de datos.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "CAT-18",
+  "modulo": "catalogo",
+  "nombre": "Prensacables y accesorios de gabinete",
+  "descripcion": "Prensacables por rosca y rango de cable, ventiladores, filtros, calefactores, iluminación y portaplanos.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAT-19",
+  "modulo": "catalogo",
+  "nombre": "Certificados de seguridad eléctrica adjuntos",
+  "descripcion": "Permite adjuntar a cada componente su certificado de seguridad y avisa cuando falta, sobre todo en marcas poco difundidas.",
+  "fase": "F4-Gestion",
+  "impacto": "bajo",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "EDI-01",
+  "modulo": "editor",
+  "nombre": "Modelo único con vistas 2D y 3D",
+  "descripcion": "Un solo modelo paramétrico con dos proyecciones: al mover un aparato se actualizan el frente 2D y el 3D en el mismo instante. En iPhone, una vista con conmutador; en PC, pantalla partida.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "EDI-02",
+  "modulo": "editor",
+  "nombre": "Acotado automático y cotas manuales",
+  "descripcion": "Genera la cadena de cotas por riel y las alturas de rieles y canales desde el borde de placa; además permite acotar entre dos puntos cualesquiera. Todo sale en el PDF.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "EDI-03",
+  "modulo": "editor",
+  "nombre": "Colisiones y holguras en vivo",
+  "descripcion": "Mientras se arrastra, la pieza se pone roja si pisa otro aparato, un cablecanal, una zona prohibida o la holgura mínima de su ficha, tanto en el plano como en profundidad.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "EDI-04",
+  "modulo": "editor",
+  "nombre": "Paleta para arrastrar al riel",
+  "descripcion": "Los componentes se arrastran desde el catálogo al riel, o se tocan para agregarlos al final de la fila elegida.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "EDI-05",
+  "modulo": "editor",
+  "nombre": "Snap a riel y pegado al vecino",
+  "descripcion": "Los aparatos se enganchan al riel y se pegan borde con borde con sus anchos reales; mover un riel arrastra todo lo montado. Grilla opcional por módulo DIN.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "EDI-06",
+  "modulo": "editor",
+  "nombre": "Deshacer y rehacer",
+  "descripcion": "Historial ilimitado de cambios en el editor, por usuario.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "EDI-07",
+  "modulo": "editor",
+  "nombre": "Duplicar y repetir en fila",
+  "descripcion": "Multiplica un aparato por N con etiquetas consecutivas (SOP1 a SOP5) en un solo paso.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "EDI-08",
+  "modulo": "editor",
+  "nombre": "Etiquetas visibles sobre los aparatos",
+  "descripcion": "Cada aparato muestra su etiqueta (SOP1, BOM1) en el 2D y en el 3D; se edita tocándola.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "EDI-09",
+  "modulo": "editor",
+  "nombre": "Vista taller bloqueada, solo lectura",
+  "descripcion": "Modo de consulta donde el plano 2D y el 3D se pueden girar y ampliar pero nada se mueve. Editar exige un toque largo en un candado.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "EDI-10",
+  "modulo": "editor",
+  "nombre": "Capas y visibilidad",
+  "descripcion": "Mostrar u ocultar cablecanal, tapas, etiquetas, cotas, fotos y zonas prohibidas para ver lo que interesa en cada momento.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "EDI-11",
+  "modulo": "editor",
+  "nombre": "Cotas acumuladas desde un único origen",
+  "descripcion": "Además de las cotas parciales, muestra la posición de cada riel, canal y agujero medida desde la esquina inferior izquierda. Se marca toda la placa sin mover la cinta métrica.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "EDI-12",
+  "modulo": "editor",
+  "nombre": "Ocupación y reserva por riel",
+  "descripcion": "Cada fila muestra milímetros ocupados y libres y el porcentaje de reserva, con aviso al pasar el 80 % de ocupación.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "EDI-13",
+  "modulo": "editor",
+  "nombre": "Ordenar una fila automáticamente",
+  "descripcion": "Compactar hacia un lado, centrar o repartir con separación pareja los aparatos de un riel.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "EDI-14",
+  "modulo": "editor",
+  "nombre": "Vistas rápidas y corte en profundidad",
+  "descripcion": "Botones de frente, planta, lateral e isométrica, y un corte lateral para comprobar que la puerta cierra.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "EDI-15",
+  "modulo": "editor",
+  "nombre": "Bloques reutilizables",
+  "descripcion": "Un grupo de aparatos (por ejemplo el arranque de una bomba) se guarda como bloque y se inserta de nuevo con sus etiquetas renumeradas.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "EDI-16",
+  "modulo": "editor",
+  "nombre": "Capa de inspección sobre el dibujo",
+  "descripcion": "En la vista 2D o 3D cada aparato se colorea según su estado (pendiente, verificado, no conformidad abierta). Tocarlo abre su checklist, número de serie y ajustes.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "EDI-17",
+  "modulo": "editor",
+  "nombre": "Gabinete más chico donde entra",
+  "descripcion": "Prueba el layout en los gabinetes cargados con su placa real y lista cuáles entran, con espacio libre y precio, para elegir el más económico que cumple.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "EDI-18",
+  "modulo": "editor",
+  "nombre": "Tapas de canal y puerta en el 3D",
+  "descripcion": "El 3D muestra las tapas del cablecanal y la puerta del gabinete, que se pueden abrir u ocultar.",
+  "fase": "F2-Taller",
+  "impacto": "bajo",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "EDI-19",
+  "modulo": "editor",
+  "nombre": "Modo presentación",
+  "descripcion": "Giro automático y vista limpia del 3D para mostrar el tablero a un cliente.",
+  "fase": "F2-Taller",
+  "impacto": "bajo",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "EDI-20",
+  "modulo": "editor",
+  "nombre": "Cables visibles en el 3D",
+  "descripcion": "Los mazos dentro del cablecanal y las bajadas a cada borne se dibujan con el color real del cable.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "EDI-21",
+  "modulo": "editor",
+  "nombre": "Editor de puerta",
+  "descripcion": "Layout 2D de la puerta con pulsadores, pilotos y pantallas, con su plantilla de perforado y chequeo contra lo montado detrás.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "EDI-22",
+  "modulo": "editor",
+  "nombre": "Seguimiento en vivo desde otro dispositivo",
+  "descripcion": "Lo que el armador tilda en el banco se ve al instante en la PC de la oficina sobre el mismo dibujo.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "EDI-23",
+  "modulo": "editor",
+  "nombre": "Costo en vivo mientras se dibuja",
+  "descripcion": "Un contador en el editor muestra costo de materiales y precio estimado, y se actualiza al agregar, quitar o cambiar un componente o el gabinete.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "EDI-24",
+  "modulo": "editor",
+  "nombre": "Varias superficies de montaje",
+  "descripcion": "Laterales, doble fondo o más de una placa en el mismo gabinete.",
+  "fase": "F5-Avanzado",
+  "impacto": "bajo",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "ELE-01",
+  "modulo": "electrico",
+  "nombre": "Generador de nomenclatura de etiquetas",
+  "descripcion": "Reglas configurables del taller (PE<n>-<origen><unidad>, PQ<n>-<destino><unidad>, SOPn, BOMn) generan todas las marcas de cables y aparatos desde el modelo, sin duplicados ni faltantes.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "ELE-02",
+  "modulo": "electrico",
+  "nombre": "Adjuntar esquemas existentes",
+  "descripcion": "Se sube el esquema hecho en otra herramienta (PDF o foto) y se vinculan sus páginas con los componentes del dibujo.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "ELE-03",
+  "modulo": "electrico",
+  "nombre": "Plan de red de los PLC",
+  "descripcion": "Tabla por tablero con MAC, IP, nombre y unidad de cada LOGO!, más los datos del Shelly. Genera la etiqueta para pegar junto al puerto de red.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "ELE-04",
+  "modulo": "electrico",
+  "nombre": "Lista de conexiones borne a borne",
+  "descripcion": "Tabla desde–hasta con sección, color, puntera y marca en cada extremo; se carga tocando dos bornes en el editor o editando como planilla, y se replica por unidad.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "ELE-05",
+  "modulo": "electrico",
+  "nombre": "Ruteo por cablecanal con largos",
+  "descripcion": "Calcula el recorrido más corto de cada cable por los canales y su largo (camino, bajadas a borne y holgura); la holgura se calibra con los largos reales medidos en el primer tablero.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "ELE-06",
+  "modulo": "electrico",
+  "nombre": "Diseñador de bornera inferior",
+  "descripcion": "Arma la regleta por grupos repetidos por unidad, con color por función, separadores, tapas finales, topes y puentes; numera los bornes y calcula el largo sobre el riel.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "ELE-07",
+  "modulo": "electrico",
+  "nombre": "Tabla de entradas y salidas por PLC",
+  "descripcion": "Grilla por cada LOGO! con I1–I8 y Q1–Q4: función, aparato de origen o destino y etiqueta. Se completa sola desde la plantilla de unidad y marca entradas libres o duplicadas.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "ELE-08",
+  "modulo": "electrico",
+  "nombre": "Buscador de marcador o borne",
+  "descripcion": "Se escribe o dicta un marcador (PE3-AG1) o se toca un borne en el dibujo y la app muestra de dónde sale, adónde llega, color y sección.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "ELE-09",
+  "modulo": "electrico",
+  "nombre": "Tarjeta de E/S del LOGO! por unidad",
+  "descripcion": "Pantalla fija por PLC con el frente del LOGO! dibujado: cada entrada I1-I8 y salida Q1-Q4 con su marcador, color y origen. Se deja abierta al lado mientras se cablea.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "ELE-10",
+  "modulo": "electrico",
+  "nombre": "Diagrama de conexiones autogenerado por unidad",
+  "descripcion": "A partir de las conexiones cargadas dibuja un esquema simple de potencia y mando por unidad, sin exigir un CAD eléctrico; se regenera al cambiar cualquier conexión.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "ELE-11",
+  "modulo": "electrico",
+  "nombre": "Corriente total y calibre de cabecera",
+  "descripcion": "Suma las corrientes por unidad con simultaneidad y sugiere calibre del interruptor general, del diferencial y del bloque de distribución.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "ELE-12",
+  "modulo": "electrico",
+  "nombre": "Esquema unifilar del tablero",
+  "descripcion": "Unifilar simple generado desde las protecciones y las cargas cargadas, para la carpeta técnica.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "ELE-13",
+  "modulo": "electrico",
+  "nombre": "Puentes, peines y comunes",
+  "descripcion": "Definición de puentes entre bornes y del reparto de neutro y de comunes con bornes dedicados, en lugar de empalmes sueltos en el canal.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "ELE-14",
+  "modulo": "electrico",
+  "nombre": "Balance de fases",
+  "descripcion": "Reparte las cargas monofásicas (bombas) entre las tres fases y muestra la corriente resultante en cada una.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "ELE-15",
+  "modulo": "electrico",
+  "nombre": "Ficha eléctrica y perfil de colores",
+  "descripcion": "Por proyecto se cargan tensión, esquema de tierra, corriente de cortocircuito, ambiente y el perfil de colores elegido (AEA, IEC 60204-1 o propio del taller) que usarán las validaciones.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "ELE-16",
+  "modulo": "electrico",
+  "nombre": "Lista de cables de campo",
+  "descripcion": "Qué cable del instalador llega a cada borne de la bornera, con sección sugerida y destino.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "ELE-17",
+  "modulo": "electrico",
+  "nombre": "Importar conexiones desde planilla u otro programa",
+  "descripcion": "Lee una lista de conexiones en Excel o exportada de un programa de esquemas y la vincula con los bornes del catálogo.",
+  "fase": "F5-Avanzado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "VAL-01",
+  "modulo": "validaciones",
+  "nombre": "Aviso de espacio entre borne y canal",
+  "descripcion": "Mientras se arma el layout, marca en naranja los aparatos con menos de 30-40 mm entre sus bornes y el cablecanal, donde no entran el marcador ni la curva del cable.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "VAL-02",
+  "modulo": "validaciones",
+  "nombre": "Panel de reglas con semáforo",
+  "descripcion": "Lista en vivo de errores, avisos y sugerencias; cada uno indica su origen (norma, fabricante o buena práctica), lleva al elemento con un toque y puede silenciarse dejando justificación.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "VAL-03",
+  "modulo": "validaciones",
+  "nombre": "Etiquetas duplicadas o faltantes",
+  "descripcion": "Revisa que cada aparato y cada extremo de cable tenga una marca única y lista los que quedaron sin etiqueta.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "VAL-04",
+  "modulo": "validaciones",
+  "nombre": "Lista de marcas y modelos homologados",
+  "descripcion": "El dueño define qué referencias están aprobadas para cada función. La app avisa si la lista de materiales o el kit incluye un modelo fuera de esa lista.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "VAL-05",
+  "modulo": "validaciones",
+  "nombre": "Puentes provisorios pendientes",
+  "descripcion": "Los puentes y alimentaciones de prueba se registran al colocarlos y bloquean la liberación hasta marcarlos como retirados.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "VAL-06",
+  "modulo": "validaciones",
+  "nombre": "Aviso de prefijo PE ambiguo",
+  "descripcion": "Advierte que las marcas que empiezan con PE, N o L se confunden con tierra, neutro y fase; ofrece un prefijo alternativo o mantenerlo con aclaración obligatoria en la leyenda.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "VAL-07",
+  "modulo": "validaciones",
+  "nombre": "Coherencia de series y modelos",
+  "descripcion": "Avisa si en el mismo tablero hay aparatos de distinta serie o calibre cumpliendo la misma función.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "VAL-08",
+  "modulo": "validaciones",
+  "nombre": "Dos cables por borne y reparto",
+  "descripcion": "Detecta bornes con más conductores de los admitidos y propone peine, borne puente o puntera doble; cuenta además las salidas libres del bloque de distribución.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "VAL-09",
+  "modulo": "validaciones",
+  "nombre": "Reglas con origen, versión y descargo",
+  "descripcion": "Cada regla muestra norma, si es obligación o buena práctica y si fue verificada. El matriculado puede desactivarla con motivo; cada informe indica la versión de reglas usada.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "VAL-10",
+  "modulo": "validaciones",
+  "nombre": "Colores, secciones y punteras por perfil",
+  "descripcion": "Verifica que el color de cada cable coincida con su función, que la sección entre en el borne y supere el mínimo, y que la puntera corresponda a la sección.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "VAL-11",
+  "modulo": "validaciones",
+  "nombre": "Coordinación motor, guardamotor y contactor",
+  "descripcion": "Con la corriente nominal de cada motor valida el rango del guardamotor, la categoría AC-3 del contactor y la tensión de bobina, y deja registrado el ajuste de regulación.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "VAL-12",
+  "modulo": "validaciones",
+  "nombre": "Llenado y segregación de cablecanal",
+  "descripcion": "Suma las secciones exteriores reales de los cables por tramo, avisa al 40 % y marca error al 50 %; también alerta si potencia y señal comparten canal sin separador.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "VAL-13",
+  "modulo": "validaciones",
+  "nombre": "Perfil de colores por proyecto",
+  "descripcion": "Se elige el criterio de colores (instalación fija, máquinas o propio del taller) y la app valida la lista de cables contra él, imprimiéndolo en la documentación.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "VAL-14",
+  "modulo": "validaciones",
+  "nombre": "Bloqueo de entrega con legajo incompleto",
+  "descripcion": "No permite pasar un tablero a entregado si falta placa, planos, lista de materiales, protocolo firmado o hay no conformidades abiertas; muestra qué falta.",
+  "fase": "F4-Gestion",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "VAL-15",
+  "modulo": "validaciones",
+  "nombre": "Balance térmico del gabinete",
+  "descripcion": "Suma la potencia disipada de las fichas y la compara con la disipable del gabinete elegido; avisa también si hay electrónica montada encima de aparatos calientes.",
+  "fase": "F5-Avanzado",
+  "impacto": "bajo",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "MAT-01",
+  "modulo": "materiales",
+  "nombre": "Lista de materiales automática con accesorios",
+  "descripcion": "Se genera desde el layout con cantidades por referencia e incluye riel, cablecanal, topes, tapas, bornes y consumibles estimados; se exporta a planilla.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "MAT-02",
+  "modulo": "materiales",
+  "nombre": "Aviso de faltante desde el paso",
+  "descripcion": "Desde cualquier paso se toca Me falta, se elige la pieza y la cantidad. La app la suma a compras, bloquea los pasos que dependen de ella y propone con qué seguir.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "MAT-03",
+  "modulo": "materiales",
+  "nombre": "Plantilla de perforado 1:1",
+  "descripcion": "Imprime el layout a escala real en mosaico A4 o A3 con marcas de solape y una regla de control de 100 mm, para marcar sobre la placa los agujeros de riel y canal.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "MAT-04",
+  "modulo": "materiales",
+  "nombre": "Kit por ejemplar con tilde",
+  "descripcion": "Antes de empezar, lista de piezas por ejemplar ordenada por fila de riel, con foto y cantidad. Se tilda al separar en la caja y muestra el porcentaje de kit completo.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "MAT-05",
+  "modulo": "materiales",
+  "nombre": "Lista de materiales valorizada con consumibles",
+  "descripcion": "La lista sale del dibujo con precio unitario, total y fecha del precio, y agrega consumibles estimados por unidad: punteras, termocontraíble, precintos, cable por color y sección.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "MAT-06",
+  "modulo": "materiales",
+  "nombre": "Lista de corte de riel y cablecanal",
+  "descripcion": "Genera los cortes de riel DIN y cablecanal de toda la serie, con cada pieza numerada (R1, C3) y el aprovechamiento por barra. Se tilda cada corte hecho.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "MAT-07",
+  "modulo": "materiales",
+  "nombre": "Preparar el banco: consumibles por etapa",
+  "descripcion": "Antes de cada etapa lista herramientas y consumibles con cantidades: punteras por color, metros de cable por color y sección, termocontraíble, precintos y bases. Se tilda y avisa si no alcanza.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "MAT-08",
+  "modulo": "materiales",
+  "nombre": "Consumo real de cable por tablero",
+  "descripcion": "Registro de los metros usados por color y sección para ajustar la estimación y el costo de los próximos.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "MAT-09",
+  "modulo": "materiales",
+  "nombre": "Explosión de la serie contra stock",
+  "descripcion": "Multiplica la lista de materiales por la cantidad de tableros, descuenta el stock y lo reservado y muestra los faltantes antes de empezar a armar.",
+  "fase": "F4-Gestion",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "MAT-10",
+  "modulo": "materiales",
+  "nombre": "Importar lista de precios del proveedor",
+  "descripcion": "Sube el Excel o CSV de un distribuidor, empareja códigos con el catálogo una sola vez y actualiza todos los precios de golpe, mostrando qué subió y cuánto.",
+  "fase": "F4-Gestion",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "MAT-11",
+  "modulo": "materiales",
+  "nombre": "Pedido de compra agrupado por proveedor",
+  "descripcion": "Convierte los faltantes en pedidos separados por proveedor, con código, cantidad y último precio, listos para enviar por WhatsApp o mail y luego marcar como recibidos.",
+  "fase": "F4-Gestion",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "MAT-12",
+  "modulo": "materiales",
+  "nombre": "Comparador de cotizaciones de proveedores",
+  "descripcion": "Cargás lo que cotizó cada proveedor para la misma lista y la app muestra el más barato por ítem y por canasta completa, con plazo y condición de pago.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "MAT-13",
+  "modulo": "materiales",
+  "nombre": "Control de recepción contra la lista",
+  "descripcion": "Al recibir una compra se verifica referencia, tensión de bobina y calibre contra la lista de materiales, escaneando el código o con foto; lo que no coincide queda apartado.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "MAT-14",
+  "modulo": "materiales",
+  "nombre": "Stock simple con mínimos y reservas",
+  "descripcion": "Entradas por compra y salidas por kit, con mínimo y punto de pedido por ítem. Lo asignado a un pedido queda reservado y no se puede usar en otro sin aviso.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "MAT-15",
+  "modulo": "materiales",
+  "nombre": "Verificar modelo escaneando el código",
+  "descripcion": "Al separar o montar un aparato se escanea su código de barras con la cámara. La app avisa en rojo si el modelo no coincide con el de la lista.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "MAT-16",
+  "modulo": "materiales",
+  "nombre": "Ubicaciones de stock",
+  "descripcion": "Cada ítem indica en qué cajón o estante está; se imprimen etiquetas con código para los cajones.",
+  "fase": "F4-Gestion",
+  "impacto": "bajo",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "ARM-01",
+  "modulo": "armado",
+  "nombre": "Modo banco: un paso por pantalla",
+  "descripcion": "Muestra una sola tarea a la vez con tres botones gigantes (Hecho, Problema, Saltar) y dibujo ampliado de la zona. Se maneja con el pulgar, con guantes, celular apoyado a un metro.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "ARM-02",
+  "modulo": "armado",
+  "nombre": "Cronómetro por etapa con motivo de parada",
+  "descripcion": "Un toque para iniciar, pausar o cambiar de etapa en cada ejemplar; al pausar pide el motivo (faltante, duda, retrabajo, otra tarea).",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "ARM-03",
+  "modulo": "armado",
+  "nombre": "Etiquetas de aparato en lote",
+  "descripcion": "Genera todas las etiquetas frontales (SOPn, BOMn y las de protecciones, PLC, relés) del tablero y de la serie, en el orden de colocación.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "ARM-04",
+  "modulo": "armado",
+  "nombre": "Reportar problema en dos toques",
+  "descripcion": "Botón rojo siempre visible: foto, tipo (no entra, dañado, plano mal, modelo distinto) y audio opcional. Queda atado al paso y al ejemplar, y avisa al encargado.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "ARM-05",
+  "modulo": "armado",
+  "nombre": "Retomar exactamente donde quedé",
+  "descripcion": "Al abrir, la app muestra el ejemplar, la etapa y el último paso tildado, con la foto de cierre de ayer y la nota pendiente. Un toque en Continuar vuelve a ese paso.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "ARM-06",
+  "modulo": "armado",
+  "nombre": "Autocontrol del operario por etapa",
+  "descripcion": "Al cerrar cada etapa aparecen 3 a 5 preguntas rápidas (sobrantes cortados, punteras en todos los extremos, tapas colocadas, cables sueltos). Sin responderlas no se pasa a la siguiente.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "ARM-07",
+  "modulo": "armado",
+  "nombre": "Carteles de cablecanal y leyenda de bornera",
+  "descripcion": "Genera para imprimir los carteles de color que nombran cada aparato sobre las tapas del canal y el sticker-leyenda de la bornera, a escala real y coherentes con el diseño.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "ARM-08",
+  "modulo": "armado",
+  "nombre": "Montaje mecánico guiado fila por fila",
+  "descripcion": "Muestra cada fila de riel de izquierda a derecha con foto real, modelo y etiqueta de cada aparato, más topes y separadores. Se tilda por fila al terminar.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "ARM-09",
+  "modulo": "armado",
+  "nombre": "Nota de traspaso por voz y foto",
+  "descripcion": "Al cortar la jornada se graba un audio corto y una foto marcada con el dedo. Queda fijada arriba del próximo paso para quien retome.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "ARM-10",
+  "modulo": "armado",
+  "nombre": "Cableado guiado: un cable por pantalla",
+  "descripcion": "Cada pantalla muestra un cable: color en muestra grande, sección, largo, puntera y marcador de cada extremo, con origen y destino resaltados en el dibujo. Al tildar pasa al siguiente.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "ARM-11",
+  "modulo": "armado",
+  "nombre": "Largos reales aprendidos del ejemplar 1",
+  "descripcion": "Al cablear el primer ejemplar se corrige el largo calculado con botones de más o menos 5 cm o marcando Sobró. Esos largos reales alimentan la lista de corte de los siguientes.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "ARM-12",
+  "modulo": "armado",
+  "nombre": "Lote de cables prefabricados por serie",
+  "descripcion": "Lista de corte ordenada por color y sección para todos los ejemplares: cantidad, largo, pelado, puntera y marcador por extremo. Se cortan todos juntos en el banco y se tildan por lote.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "ARM-13",
+  "modulo": "armado",
+  "nombre": "Repetir patrón en las demás unidades",
+  "descripcion": "Cableada la unidad 1 (soplador, bomba, drenaje, PLC), la app ofrece repetir la misma secuencia en las unidades 2 a 5 cambiando solo el número en bornes y marcadores.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "ARM-14",
+  "modulo": "armado",
+  "nombre": "Tira de numeración de bornera",
+  "descripcion": "Imprime la tira de marcadores de los bornes con la numeración y los grupos definidos en el diseño.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "ARM-15",
+  "modulo": "armado",
+  "nombre": "Secuencia de cableado por zonas",
+  "descripcion": "Ordena los cables para trabajar de fondo a frente y de arriba abajo: primero puentes y potencia, después mando, por tramo de cablecanal. El armador puede reordenar y guardar su secuencia.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "ARM-16",
+  "modulo": "armado",
+  "nombre": "Reparto de trabajo entre dos armadores",
+  "descripcion": "Dos personas cablean el mismo tablero sin pisarse: la lista se reparte por unidad o por zona.",
+  "fase": "F4-Gestion",
+  "impacto": "bajo",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "SER-01",
+  "modulo": "series",
+  "nombre": "Clonar un tablero existente",
+  "descripcion": "Cualquier tablero se copia como punto de partida de uno nuevo, con sus medidas, componentes y etiquetas.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "SER-02",
+  "modulo": "series",
+  "nombre": "Plantilla paramétrica por cantidad de unidades",
+  "descripcion": "Se elige cuántas unidades lleva el tablero y opciones (Shelly, temporizador, tipo de gabinete); la app genera parte fija más bloque repetido: layout, etiquetas, E/S, bornera y lista de materiales.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "SER-03",
+  "modulo": "series",
+  "nombre": "Aviso de cambios al retomar",
+  "descripcion": "Si el diseño cambió desde la última sesión, al abrir el ejemplar aparece un resumen con lo modificado y los pasos ya hechos que quedan afectados, para confirmar o rehacer.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "SER-04",
+  "modulo": "series",
+  "nombre": "Cambios de diseño con aprobación del dueño",
+  "descripcion": "Todo cambio al tablero tipo pide motivo y aprobación, queda como revisión numerada y la app indica qué ejemplares sin terminar lo reciben y cuáles quedan con la versión anterior.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "SER-05",
+  "modulo": "series",
+  "nombre": "Comparador del ejemplar contra el patrón",
+  "descripcion": "Compara cada ejemplar con el número 1 aprobado (materiales, posiciones, etiquetas, ajustes, versión de programa) y lista las diferencias para corregirlas o justificarlas.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "SER-06",
+  "modulo": "series",
+  "nombre": "Modo tanda: mismo paso en toda la serie",
+  "descripcion": "Permite hacer la misma etapa en todos los ejemplares seguidos: la app presenta el paso con un tilde por ejemplar y no mezcla el avance de cada uno.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "SER-07",
+  "modulo": "series",
+  "nombre": "Serie numerada con registro de desvíos",
+  "descripcion": "Clona el tablero patrón en ejemplares con número de serie; cada cambio en un ejemplar (sustituto, posición, etiqueta) queda como desvío y se lista contra el patrón.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "SER-08",
+  "modulo": "series",
+  "nombre": "Foto del ejemplar patrón en cada paso",
+  "descripcion": "Cada paso muestra al lado la foto del mismo paso tomada en el ejemplar n.º 1 ya aprobado, ampliable. El armador compara antes de tildar.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "SER-09",
+  "modulo": "series",
+  "nombre": "Opcionales comerciales por tablero",
+  "descripcion": "Interruptores de opción (con o sin Shelly, temporizador, control de fases, gabinete metálico, plástico o solo placa) que agregan o quitan componentes, etiquetas y costo.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "SER-10",
+  "modulo": "series",
+  "nombre": "Revisiones con comparación visual",
+  "descripcion": "Cada diseño tiene revisiones; la comparación resalta qué se movió, agregó o cambió en layout, materiales, etiquetas y cables, y una revisión puede congelarse como liberada.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "SER-11",
+  "modulo": "series",
+  "nombre": "Número de serie y orden de fabricación",
+  "descripcion": "Cada ejemplar recibe un número de serie único y una orden con cliente, configuración, revisión y fecha prometida; se imprime como etiqueta para pegar en la placa.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "SER-12",
+  "modulo": "series",
+  "nombre": "QR por ejemplar pegado en la placa",
+  "descripcion": "Cada ejemplar de la serie tiene un QR que se imprime y se pega en la placa. Al escanearlo, la app abre ese ejemplar en el paso donde quedó.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "SER-13",
+  "modulo": "series",
+  "nombre": "Simulador de ampliación de unidades",
+  "descripcion": "Prueba agregar una unidad más al diseño actual e informa si alcanzan riel, cablecanal, bornera, salidas del bloque de distribución y corriente del interruptor general.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "SER-14",
+  "modulo": "series",
+  "nombre": "Cierre de serie con aprendizajes",
+  "descripcion": "Al terminar una serie, resumen de tiempos, errores repetidos y cambios propuestos a la plantilla.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "SER-15",
+  "modulo": "series",
+  "nombre": "Plantillas para otros productos",
+  "descripcion": "El mismo mecanismo de unidad repetida aplicado a otros tableros del taller (por ejemplo el de gabinete plástico con temporizadores).",
+  "fase": "F5-Avanzado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "CAL-01",
+  "modulo": "calidad",
+  "nombre": "Avisos aprendidos del ejemplar anterior",
+  "descripcion": "Cada error detectado en revisión o ensayo se convierte en una advertencia amarilla que aparece en ese mismo paso al armar los ejemplares siguientes.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "CAL-02",
+  "modulo": "calidad",
+  "nombre": "Ensayo funcional guiado por unidad",
+  "descripcion": "Protocolo paso a paso que se repite por cada unidad: diferencial, disparo de guardamotor, falta de fase, electrodos de nivel, entradas y salidas del LOGO!. Registra pasa o falla, valor y foto.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "CAL-03",
+  "modulo": "calidad",
+  "nombre": "Liberación con firma del matriculado",
+  "descripcion": "Pantalla de cierre que resume checklist, ensayos y no conformidades. El profesional firma con nombre y matrícula; la firma congela la revisión y sella el PDF del protocolo.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "CAL-04",
+  "modulo": "calidad",
+  "nombre": "No conformidades con foto y disposición",
+  "descripcion": "Desde cualquier ítem No OK se abre una no conformidad con foto, tipo de defecto y responsable. Se cierra corrigiendo o aceptando un desvío firmado; mientras esté abierta, bloquea la liberación.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "CAL-05",
+  "modulo": "calidad",
+  "nombre": "Protocolo de ensayo con valores y criterios",
+  "descripcion": "Formulario de ensayo final: continuidad de PE por masa, aislación a 500 Vcc, disparo del diferencial y pruebas funcionales. Cada valor cargado se compara con su criterio y queda aprobado o rechazado.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "CAL-06",
+  "modulo": "calidad",
+  "nombre": "Trazabilidad de componentes por serie y lote",
+  "descripcion": "En cada ejemplar se registra marca, referencia y número de serie o lote de los aparatos principales escaneando el código o fotografiando la placa. Se consulta desde el número de serie del tablero.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "CAL-07",
+  "modulo": "calidad",
+  "nombre": "Bloqueo de megado con electrónica conectada",
+  "descripcion": "Antes del ensayo de aislación muestra la lista de equipos a desconectar (LOGO!, Shelly, protectores, controles de nivel, temporizador) y exige tildar la reconexión de cada uno al terminar.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAL-08",
+  "modulo": "calidad",
+  "nombre": "Checklist de rutina en diez bloques",
+  "descripcion": "Genera por cada tablero el control de rutina (plano, IP, PE, montaje, cableado, bornes, identificación, ajustes). Cada ítem se marca OK / No OK / N.A. desde el iPhone, con foto, responsable y fecha.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAL-09",
+  "modulo": "calidad",
+  "nombre": "Checklist de terminación antes del ensayo",
+  "descripcion": "Lista corta con foto por ítem: reapriete con torque, tapas de canal, sobrantes cortados, precintos, etiquetas completas, vínculo de tierra de la placa. No deja pasar al ensayo con ítems abiertos.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAL-10",
+  "modulo": "calidad",
+  "nombre": "Control de par de apriete por aparato",
+  "descripcion": "Lista cada aparato con el par de su ficha (por ejemplo GV2ME: 1,7 N·m) para tildar al reapretar con torquímetro y marcar con pintura. Admite control total o por muestreo.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAL-11",
+  "modulo": "calidad",
+  "nombre": "Superposición del diseño sobre foto real",
+  "descripcion": "Sobre la foto rectificada del tablero terminado se superpone el layout para ver de un vistazo aparatos corridos, faltantes o cambiados, y la foto queda como registro del ejemplar.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "CAL-12",
+  "modulo": "calidad",
+  "nombre": "Criterios de aceptación con foto bien/mal",
+  "descripcion": "Cada ítem del checklist muestra una foto de ejemplo aceptable y otra rechazable (crimpado de puntera, radio de curva, sobrante, marcador legible), cargadas por el taller con sus propios tableros.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAL-13",
+  "modulo": "calidad",
+  "nombre": "Ficha de ajustes y programa por ejemplar",
+  "descripcion": "Por cada tablero guarda MAC e IP de cada LOGO! (escaneando su etiqueta), versión del programa cargado, regulación de cada guardamotor y umbrales de los protectores.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAL-14",
+  "modulo": "calidad",
+  "nombre": "Fotos obligatorias en puntos de retención",
+  "descripcion": "Define etapas que no se pueden cerrar sin foto (placa perforada, montaje, potencia, mando, terminado antes de tapar canales). Las fotos quedan atadas al número de serie y a la etapa.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAL-15",
+  "modulo": "calidad",
+  "nombre": "Registro de instrumentos y su calibración",
+  "descripcion": "Alta de tester, megóhmetro y torquímetro con modelo, número de serie y vencimiento de calibración. El protocolo cita el instrumento usado y avisa si está vencido.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAL-16",
+  "modulo": "calidad",
+  "nombre": "Versiones del programa del LOGO!",
+  "descripcion": "Guarda el archivo de programa de cada tablero con versión, fecha, autor y nota de cambios, y registra qué versión quedó cargada en cada PLC.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAL-17",
+  "modulo": "calidad",
+  "nombre": "Ensayo funcional generado desde las E/S",
+  "descripcion": "Con la tabla de E/S arma el protocolo por unidad: disparar el guardamotor y ver caer la entrada, simular electrodos, forzar cada salida; cada paso con resultado y foto.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "CAL-18",
+  "modulo": "calidad",
+  "nombre": "Verificación punto a punto guiada",
+  "descripcion": "Recorre la lista de conexiones cable por cable: resalta origen y destino en el dibujo, el inspector prueba continuidad con el tester y tilda. El avance queda guardado y se retoma.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "CAL-19",
+  "modulo": "calidad",
+  "nombre": "Puesta en marcha en obra guiada",
+  "descripcion": "Checklist para el sitio: tensión y secuencia de fases, tierra, sentido de giro, corriente medida de cada motor contra su regulación y prueba de nivel con agua real. Se guarda con fotos y firma.",
+  "fase": "F4-Gestion",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAL-20",
+  "modulo": "calidad",
+  "nombre": "Búsqueda de tableros afectados",
+  "descripcion": "Dado un componente, lote, versión de programa o revisión de diseño, lista todos los tableros entregados que lo llevan, con cliente y contacto, para avisar o programar la corrección.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "CAL-21",
+  "modulo": "calidad",
+  "nombre": "Ensayo de red y comunicaciones",
+  "descripcion": "Verifica y registra dirección de cada PLC, respuesta en la red y señal WiFi del Shelly con el gabinete cerrado.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "DOC-01",
+  "modulo": "documentacion",
+  "nombre": "PDF de layout acotado a escala",
+  "descripcion": "Con un toque exporta un PDF vectorial con el frente acotado, una vista 3D, la lista de materiales y los datos del proyecto, con carátula del taller.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "DOC-02",
+  "modulo": "documentacion",
+  "nombre": "Imagen 3D con marca para el presupuesto",
+  "descripcion": "Exporta la vista 3D del tablero como imagen limpia con logo MEC, medidas generales y nombre del cliente, lista para adjuntar al presupuesto o enviar por WhatsApp.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "DOC-03",
+  "modulo": "documentacion",
+  "nombre": "Placa de características autonumerada",
+  "descripcion": "Genera la placa con fabricante, tipo, número de serie, fecha, tensión, corriente, Icc, IP y norma, lista para imprimir en la rotuladora o en PDF.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "DOC-04",
+  "modulo": "documentacion",
+  "nombre": "Instructivos cortos adjuntos al paso",
+  "descripcion": "A cada tipo de paso se le puede adjuntar una foto o video de 20 segundos hecho en el taller (cómo se cablea el control de nivel, cómo va el zócalo del relé).",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "DOC-05",
+  "modulo": "documentacion",
+  "nombre": "Leyenda de bornera y plano de puerta",
+  "descripcion": "Genera desde el proyecto el sticker-leyenda de la bornera y una hoja resumen (unifilar, tabla de E/S, significado de los códigos) para pegar en la contratapa.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "DOC-06",
+  "modulo": "documentacion",
+  "nombre": "Etiquetas de advertencia y datos del fabricante",
+  "descripcion": "Genera las etiquetas de riesgo eléctrico, tensión y datos de contacto del taller.",
+  "fase": "F2-Taller",
+  "impacto": "bajo",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "DOC-07",
+  "modulo": "documentacion",
+  "nombre": "Correcciones de taller sobre el plano",
+  "descripcion": "El operario marca sobre el dibujo lo que armó distinto, con foto y nota. Tras la aprobación del responsable, esas marcas pasan a la revisión conforme a obra.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "DOC-08",
+  "modulo": "documentacion",
+  "nombre": "Plano de conexionado para el instalador",
+  "descripcion": "Hoja de la bornera con qué cable de campo va a cada borne y la leyenda por unidad.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "DOC-09",
+  "modulo": "documentacion",
+  "nombre": "Carpeta conforme a obra automática",
+  "descripcion": "Arma un PDF por número de serie: carátula, layout, esquemas, lista de bornes, materiales con series, ajustes, protocolo firmado, fotos y manuales. Incluye exportación completa del legajo.",
+  "fase": "F4-Gestion",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "DOC-10",
+  "modulo": "documentacion",
+  "nombre": "Enlace 3D para aprobación del cliente",
+  "descripcion": "Link web donde el cliente gira el tablero en 3D, ve qué incluye y aprueba con nombre y fecha. La aprobación queda atada a la revisión antes de fabricar.",
+  "fase": "F4-Gestion",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "DOC-11",
+  "modulo": "documentacion",
+  "nombre": "QR en el tablero con ficha viva",
+  "descripcion": "Etiqueta QR con dirección única por número de serie. Quien la escanea ve datos básicos y contacto; el técnico autenticado ve planos, protocolo, ajustes e historial.",
+  "fase": "F4-Gestion",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "DOC-12",
+  "modulo": "documentacion",
+  "nombre": "Guía de fallas generada del proyecto",
+  "descripcion": "Para cada síntoma (soplador 3 no arranca, bomba 2 corta) arma los pasos de revisión con los aparatos, entradas y cables reales de ese tablero y su ubicación en el dibujo.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "DOC-13",
+  "modulo": "documentacion",
+  "nombre": "Manual de uso del tablero",
+  "descripcion": "Documento con funcionamiento, significado de pilotos y alarmas y ajustes, armado desde la configuración del tablero.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "DOC-14",
+  "modulo": "documentacion",
+  "nombre": "Pedido de repuestos desde el QR",
+  "descripcion": "Desde la ficha del QR el cliente elige el aparato en la foto o el dibujo y pide el repuesto exacto; al taller le llega con referencia, serie y precio sugerido.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "DOC-15",
+  "modulo": "documentacion",
+  "nombre": "Reclamos y garantía por número de serie",
+  "descripcion": "El cliente abre un reclamo escaneando el QR, con foto y descripción. El taller lo sigue con estado, causa raíz, costo y vencimiento de garantía, vinculado a no conformidades.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "DOC-16",
+  "modulo": "documentacion",
+  "nombre": "Despacho y acta de entrega firmada",
+  "descripcion": "Checklist de despacho (accesorios, electrodos, llaves, manual, fotos del embalaje) y acta que el cliente firma en el teléfono; la fecha inicia la garantía.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "DOC-17",
+  "modulo": "documentacion",
+  "nombre": "Historial de mantenimiento por tablero",
+  "descripcion": "Cada intervención se carga desde el QR: fecha, técnico, tarea, repuestos cambiados, ajustes modificados y fotos del antes y después.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "DOC-18",
+  "modulo": "documentacion",
+  "nombre": "Hoja de producto MEC por modelo",
+  "descripcion": "Genera fichas comerciales de los tableros tipo (2, 4 y 5 unidades) con render, medidas, qué incluye y opcionales, para usar como catálogo de venta.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "DOC-19",
+  "modulo": "documentacion",
+  "nombre": "Repuesto exacto y sustituto vigente",
+  "descripcion": "Desde la ficha del tablero se ve cada repuesto con referencia exacta, bobina y calibre, y el reemplazo vigente si fue discontinuado (LOGO! 0BA1 a 0BA2).",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "DOC-20",
+  "modulo": "documentacion",
+  "nombre": "Plan preventivo con recordatorios",
+  "descripcion": "Programa tareas periódicas por tablero (prueba del diferencial, reapriete, limpieza de electrodos de nivel) y envía recordatorios al cliente o al taller.",
+  "fase": "F4-Gestion",
+  "impacto": "bajo",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "GES-01",
+  "modulo": "gestion",
+  "nombre": "Tablero de estado por ejemplar",
+  "descripcion": "Cada tablero numerado se ve como tarjeta que avanza por columnas: kit, mecánico, cableado, ensayo, listo, entregado. Se actualiza solo con el checklist y el cronómetro.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "GES-02",
+  "modulo": "gestion",
+  "nombre": "Alerta de margen erosionado por aumentos",
+  "descripcion": "Para pedidos aceptados con materiales todavía sin comprar, compara el costo presupuestado con el de reposición actual y avisa cuánto margen se perdió y qué ítems lo explican.",
+  "fase": "F4-Gestion",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "GES-03",
+  "modulo": "gestion",
+  "nombre": "Costo real contra presupuesto por ejemplar",
+  "descripcion": "Suma materiales consumidos, horas cronometradas y retrabajo de cada tablero numerado y lo compara con lo presupuestado, por etapa y por rubro.",
+  "fase": "F4-Gestion",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "GES-04",
+  "modulo": "gestion",
+  "nombre": "Indicadores del taller en una pantalla",
+  "descripcion": "Muestra horas por tablero y etapa, desvío de costo, paradas por faltantes, tableros que pasan el ensayo a la primera y cumplimiento de fecha, por serie y por mes.",
+  "fase": "F4-Gestion",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "GES-05",
+  "modulo": "gestion",
+  "nombre": "Liberación a taller y pedidos de cambio",
+  "descripcion": "El proyectista libera una revisión y queda bloqueada; el taller la ve en el celular y propone cambios marcando sobre el plano con foto, que el proyectista acepta o rechaza.",
+  "fase": "F4-Gestion",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "GES-06",
+  "modulo": "gestion",
+  "nombre": "Planificador de serie con fecha prometida",
+  "descripcion": "Cargás cantidad de tableros, operarios y horas disponibles; calcula fecha de entrega realista, fecha límite para pedir cada material según plazo del proveedor y avisa si se atrasa.",
+  "fase": "F4-Gestion",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "GES-07",
+  "modulo": "gestion",
+  "nombre": "Precios en pesos y dólares con historial",
+  "descripcion": "Cada precio se guarda con moneda, fecha, proveedor y tipo de cambio. El dueño elige qué cotización aplicar al presupuestar y ve la variación de cada componente en el tiempo.",
+  "fase": "F4-Gestion",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "GES-08",
+  "modulo": "gestion",
+  "nombre": "Presupuesto automático desde la configuración",
+  "descripcion": "Elegís cantidad de unidades y opcionales; la app arma el presupuesto con materiales valorizados, horas estándar por etapa, costo hora del taller y margen, y lo exporta en PDF con marca MEC.",
+  "fase": "F4-Gestion",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "GES-09",
+  "modulo": "gestion",
+  "nombre": "Tiempos estándar aprendidos de la serie",
+  "descripcion": "Con los cronometrajes calcula horas típicas por etapa y por unidad agregada, muestra la mejora del ejemplar 1 al 3 y alimenta el próximo presupuesto.",
+  "fase": "F4-Gestion",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "GES-10",
+  "modulo": "gestion",
+  "nombre": "Anticipo e hitos de cobro que disparan compras",
+  "descripcion": "Registra seña, saldo e hitos de pago por pedido. Al cargar el anticipo propone la compra inmediata de los ítems de mayor peso en el costo para congelar precios.",
+  "fase": "F4-Gestion",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "GES-11",
+  "modulo": "gestion",
+  "nombre": "Vigencia y recálculo del presupuesto",
+  "descripcion": "Cada presupuesto lleva fecha de validez y condiciones comerciales. Al vencer, un toque lo recalcula con precios y cotización del día y muestra la diferencia antes de reenviarlo.",
+  "fase": "F4-Gestion",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "GES-12",
+  "modulo": "gestion",
+  "nombre": "Roles con separación de firma",
+  "descripcion": "Define operario, inspector y responsable técnico. Los ítems críticos de seguridad no los puede aprobar quien los armó, y solo el matriculado libera.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "GES-13",
+  "modulo": "gestion",
+  "nombre": "Usuarios y roles con costos ocultos",
+  "descripcion": "Perfiles de dueño, armador y vendedor. El armador ve instrucciones y checklist pero no precios ni márgenes; queda registrado quién cambió cada plano, precio o estado.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "GES-14",
+  "modulo": "gestion",
+  "nombre": "Control de ítems olvidados al presupuestar",
+  "descripcion": "Antes de enviar, revisa que el presupuesto incluya consumibles, etiquetas, gabinete, embalaje, flete, horas de ensayo y programación del PLC, y marca los que falten.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "GES-15",
+  "modulo": "gestion",
+  "nombre": "Embudo de presupuestos con motivo de pérdida",
+  "descripcion": "Lista de presupuestos por estado (borrador, enviado, aceptado, perdido) con recordatorio de seguimiento y motivo de pérdida obligatorio al cerrar.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "GES-16",
+  "modulo": "gestion",
+  "nombre": "Ficha de cliente con historial y repetición",
+  "descripcion": "Datos del cliente, presupuestos, tableros entregados con su número de serie y reclamos. Un botón 'repetir pedido' clona el último tablero con precios actualizados.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "GES-17",
+  "modulo": "gestion",
+  "nombre": "Indicadores de calidad por serie",
+  "descripcion": "Panel con defectos por tipo y etapa, tableros que pasan el ensayo a la primera, horas de retrabajo y reclamos por serie.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "GES-18",
+  "modulo": "gestion",
+  "nombre": "Pantalla Hoy y resumen semanal",
+  "descripcion": "Al abrir la app el dueño ve entregas próximas, faltantes, presupuestos por vencer y aprobaciones pendientes; una vez por semana recibe el mismo resumen por mail o para compartir.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "GES-19",
+  "modulo": "gestion",
+  "nombre": "Presupuesto con tres alternativas",
+  "descripcion": "Genera en el mismo PDF las variantes básica, estándar y completa (por ejemplo sin o con Shelly, gabinete plástico o metálico) con la diferencia de precio de cada una.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "GES-20",
+  "modulo": "gestion",
+  "nombre": "Costo de uso de la app",
+  "descripcion": "Panel con el consumo mensual de almacenamiento y de inteligencia artificial.",
+  "fase": "F4-Gestion",
+  "impacto": "bajo",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "GES-21",
+  "modulo": "gestion",
+  "nombre": "Garantías de proveedores",
+  "descripcion": "Fecha de compra y vencimiento de garantía de los componentes principales, para reclamar al proveedor.",
+  "fase": "F4-Gestion",
+  "impacto": "bajo",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "GES-22",
+  "modulo": "gestion",
+  "nombre": "Horas por operario",
+  "descripcion": "Resumen de horas trabajadas por persona y por tablero a partir del cronómetro.",
+  "fase": "F4-Gestion",
+  "impacto": "bajo",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "GES-23",
+  "modulo": "gestion",
+  "nombre": "Órdenes de servicio en obra",
+  "descripcion": "Visitas técnicas con tareas, repuestos, horas y firma del cliente, ligadas al número de serie.",
+  "fase": "F5-Avanzado",
+  "impacto": "bajo",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "IA-01",
+  "modulo": "ia",
+  "nombre": "Reconocer el componente por la foto del frente",
+  "descripcion": "La foto se analiza y la ficha llega precargada con marca, modelo, valores nominales y categoría; los campos dudosos quedan resaltados y nada se guarda sin confirmar.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "IA-02",
+  "modulo": "ia",
+  "nombre": "Lectura automática de placas y etiquetas",
+  "descripcion": "Fotografiando la etiqueta de un aparato la app extrae referencia, número de serie y MAC y propone cargarlos en la trazabilidad; el usuario confirma.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "IA-03",
+  "modulo": "ia",
+  "nombre": "Recorte de fondo y enderezado de la foto",
+  "descripcion": "La foto del frente queda limpia, derecha y a la proporción medida, lista para usarse como textura del 3D.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "IA-04",
+  "modulo": "ia",
+  "nombre": "Lectura en voz alta del paso",
+  "descripcion": "La app lee cada paso con frases cortas: 'gris uno coma cinco, de PQ1 a A1 de SOP1, setenta centímetros'. Sirve con auricular para trabajar sin mirar la pantalla.",
+  "fase": "F3-Cableado",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "IA-05",
+  "modulo": "ia",
+  "nombre": "Parte diario automático",
+  "descripcion": "Resumen del día por ejemplar armado con los tildes, fotos, problemas y notas.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "IA-06",
+  "modulo": "ia",
+  "nombre": "Transcripción de notas de voz",
+  "descripcion": "Los audios de traspaso y de problemas se pasan a texto y se pueden buscar.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "IA-07",
+  "modulo": "ia",
+  "nombre": "Inspección visual asistida por foto",
+  "descripcion": "Compara la foto del tablero terminado con el layout y el patrón, y señala posibles faltas: aparato sin cartel, modelo distinto, canal sin tapa, cable colgando. Solo sugiere; decide el inspector.",
+  "fase": "F5-Avanzado",
+  "impacto": "alto",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "IA-08",
+  "modulo": "ia",
+  "nombre": "Comandos de voz manos libres",
+  "descripcion": "Palabras fijas (listo, siguiente, repetir, problema, falta) reconocidas con auricular con micrófono. Vocabulario corto para que funcione con ruido de taller; siempre queda el botón como alternativa.",
+  "fase": "F5-Avanzado",
+  "impacto": "medio",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "IA-09",
+  "modulo": "ia",
+  "nombre": "Propuesta automática de layout",
+  "descripcion": "Dada la placa y la cantidad de unidades, propone la distribución por filas respetando orden funcional, holguras y reserva; el proyectista elige entre alternativas y ajusta.",
+  "fase": "F5-Avanzado",
+  "impacto": "medio",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "IA-10",
+  "modulo": "ia",
+  "nombre": "Tablero existente a modelo por foto",
+  "descripcion": "A partir de la ortofoto de un tablero armado, la IA reconoce aparatos del catálogo y propone el layout inicial, que el proyectista corrige y confirma.",
+  "fase": "F5-Avanzado",
+  "impacto": "medio",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "IA-11",
+  "modulo": "ia",
+  "nombre": "Asistente del proyecto",
+  "descripcion": "Preguntas en lenguaje natural sobre el tablero: a qué entrada va el nivel de la unidad 3, cuántos metros de celeste hacen falta.",
+  "fase": "F5-Avanzado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "IA-12",
+  "modulo": "ia",
+  "nombre": "Buscar hoja de datos y medidas",
+  "descripcion": "A partir del modelo leído busca el documento del fabricante, propone medidas citando la página y avisa si difieren de lo medido con calibre.",
+  "fase": "F5-Avanzado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "IA-13",
+  "modulo": "ia",
+  "nombre": "Carga de facturas y remitos por foto",
+  "descripcion": "Sacás foto de la factura o remito del proveedor; la app lee ítems, cantidades y precios, los empareja con el catálogo y propone actualizar stock y costos para confirmar.",
+  "fase": "F5-Avanzado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "IA-14",
+  "modulo": "ia",
+  "nombre": "Estimación de horas desde el diseño",
+  "descripcion": "Con la cantidad de aparatos y cables y los tiempos históricos del taller, predice las horas de armado.",
+  "fase": "F5-Avanzado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "IA-15",
+  "modulo": "ia",
+  "nombre": "Importar ficha desde URL o PDF",
+  "descripcion": "Se pega el enlace o el PDF de la hoja de datos y la app propone medidas, par, secciones y datos eléctricos para que una persona los revise y confirme antes de guardar.",
+  "fase": "F5-Avanzado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "IA-16",
+  "modulo": "ia",
+  "nombre": "Orden de armado sugerido",
+  "descripcion": "Propone la secuencia de montaje y cableado y la ajusta con lo que el armador reordena.",
+  "fase": "F5-Avanzado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "IA-17",
+  "modulo": "ia",
+  "nombre": "Presupuesto por voz o texto libre",
+  "descripcion": "El dueño dicta 'tablero de 4 unidades, gabinete metálico, con Shelly, para tal cliente' y la app arma el borrador de configuración y presupuesto para revisar.",
+  "fase": "F5-Avanzado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "IA-18",
+  "modulo": "ia",
+  "nombre": "Leer un esquema y proponer conexiones",
+  "descripcion": "A partir de un esquema en PDF o foto propone la lista de conexiones para revisar.",
+  "fase": "Futuro",
+  "impacto": "medio",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "IA-19",
+  "modulo": "ia",
+  "nombre": "Leer marcadores de cable por foto",
+  "descripcion": "Fotos de cerca de los termocontraíbles para verificar que cada marcador esté donde corresponde.",
+  "fase": "Futuro",
+  "impacto": "bajo",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "HW-01",
+  "modulo": "hardware",
+  "nombre": "Calibre digital en modo teclado",
+  "descripcion": "Un calibre Bluetooth que funciona como teclado escribe cada medida en su campo al apretar un botón, sin programación especial.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "HW-02",
+  "modulo": "hardware",
+  "nombre": "Exportar marcadores a la rotuladora",
+  "descripcion": "Genera el archivo CSV con columnas configurables para la app o el programa de la rotuladora del taller, respetando el orden de colocación y el largo de cada termocontraíble.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "HW-03",
+  "modulo": "hardware",
+  "nombre": "Hojas de etiquetas y QR para impresora común",
+  "descripcion": "PDF en hojas A4 de autoadhesivos con códigos QR, números de serie y carteles, para imprimir sin rotuladora.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "HW-04",
+  "modulo": "hardware",
+  "nombre": "Pedal o botón Bluetooth para avanzar",
+  "descripcion": "Un pedal o control remoto Bluetooth de los que funcionan como teclado avanza, retrocede o repite el paso. No requiere app nativa: el iPhone lo toma como teclado.",
+  "fase": "F3-Cableado",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "HW-05",
+  "modulo": "hardware",
+  "nombre": "Exportar a planilla para el contador",
+  "descripcion": "Exporta presupuestos, compras, stock valorizado y costos por pedido a Excel o CSV con columnas fijas, por período.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "HW-06",
+  "modulo": "hardware",
+  "nombre": "Impresión directa en la rotuladora",
+  "descripcion": "Con la app nativa y el kit del fabricante de la rotuladora se imprimen lotes de marcadores y etiquetas sin pasar por otra app.",
+  "fase": "F5-Avanzado",
+  "impacto": "alto",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "HW-07",
+  "modulo": "hardware",
+  "nombre": "Conexión con facturación y gestión",
+  "descripcion": "Envía el pedido aceptado al sistema de facturación o gestión que ya use el taller para emitir la factura, y trae el estado de cobro.",
+  "fase": "F5-Avanzado",
+  "impacto": "medio",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "HW-08",
+  "modulo": "hardware",
+  "nombre": "Lectura en línea del LOGO! en ensayo",
+  "descripcion": "Conectada por red al PLC, la app lee entradas y salidas durante la prueba funcional y registra sola cada paso. Requiere confirmar que la versión del equipo lo permite.",
+  "fase": "F5-Avanzado",
+  "impacto": "medio",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "HW-09",
+  "modulo": "hardware",
+  "nombre": "Reimprimir un marcador desde el paso",
+  "descripcion": "Con la rotuladora conectada por Bluetooth en la app nativa, un botón en la pantalla del cable imprime solo ese marcador, para reponer uno dañado o mal contraído.",
+  "fase": "F5-Avanzado",
+  "impacto": "medio",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "HW-10",
+  "modulo": "hardware",
+  "nombre": "Ver el tablero en realidad aumentada",
+  "descripcion": "El modelo 3D se exporta y se ve a escala real sobre la mesa o la pared desde el iPhone.",
+  "fase": "F5-Avanzado",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "HW-11",
+  "modulo": "hardware",
+  "nombre": "Exportar DXF e importar STEP",
+  "descripcion": "Exporta layout y perforado en DXF para CAD o corte externo, e importa modelos STEP de fabricante convertidos a malla liviana como alternativa a la caja con foto.",
+  "fase": "F5-Avanzado",
+  "impacto": "bajo",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "HW-12",
+  "modulo": "hardware",
+  "nombre": "Datos del Shelly en el ensayo",
+  "descripcion": "Lectura del estado y la configuración del Shelly por la red local para dejarlos registrados.",
+  "fase": "F5-Avanzado",
+  "impacto": "bajo",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "HW-13",
+  "modulo": "hardware",
+  "nombre": "Etiqueta NFC en el tablero",
+  "descripcion": "Además del QR, una etiqueta NFC abre la ficha del tablero al acercar el teléfono.",
+  "fase": "F5-Avanzado",
+  "impacto": "bajo",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "HW-14",
+  "modulo": "hardware",
+  "nombre": "Pedido de cables prefabricados a terceros",
+  "descripcion": "Exporta la lista de cables en planilla para encargar juegos cortados y rotulados.",
+  "fase": "F5-Avanzado",
+  "impacto": "bajo",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "HW-15",
+  "modulo": "hardware",
+  "nombre": "Carga del programa del PLC por red",
+  "descripcion": "Cargar programa y parámetros a cada LOGO! desde la app; a validar técnicamente.",
+  "fase": "Futuro",
+  "impacto": "medio",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "HW-16",
+  "modulo": "hardware",
+  "nombre": "Realidad aumentada anclada a la placa",
+  "descripcion": "El layout superpuesto sobre la placa real para marcar perforaciones y posiciones; requiere app nativa.",
+  "fase": "Futuro",
+  "impacto": "medio",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "HW-17",
+  "modulo": "hardware",
+  "nombre": "Cinta o medidor láser Bluetooth",
+  "descripcion": "Medidas de gabinete enviadas directo a la app.",
+  "fase": "Futuro",
+  "impacto": "bajo",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "HW-18",
+  "modulo": "hardware",
+  "nombre": "Guía luminosa de cajones o bornes",
+  "descripcion": "Luces que marcan el cajón de la pieza o el borne del paso actual.",
+  "fase": "Futuro",
+  "impacto": "bajo",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "HW-19",
+  "modulo": "hardware",
+  "nombre": "Destornillador con torque conectado",
+  "descripcion": "Adjunta al protocolo el registro de aprietes exportado por la herramienta.",
+  "fase": "Futuro",
+  "impacto": "bajo",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "PLA-01",
+  "modulo": "plataforma",
+  "nombre": "App web instalable con modo sin conexión",
+  "descripcion": "Funciona en iPhone y PC como app instalable; guarda todo localmente, sincroniza al recuperar señal y comprime las fotos antes de subirlas.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "PLA-02",
+  "modulo": "plataforma",
+  "nombre": "Fluidez en equipos modestos",
+  "descripcion": "Objetivo de diseño: 300 piezas sin trabas en un iPhone de varios años.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "PLA-03",
+  "modulo": "plataforma",
+  "nombre": "Backup automático y exportación completa",
+  "descripcion": "Copia diaria en la nube y un botón que descarga todo (proyectos, catálogo, fotos, precios) en formato abierto, para no depender de un solo teléfono ni de la app.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "PLA-04",
+  "modulo": "plataforma",
+  "nombre": "Fotos con anotaciones",
+  "descripcion": "Flechas, círculos y texto dibujados con el dedo sobre cualquier foto.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "PLA-05",
+  "modulo": "plataforma",
+  "nombre": "Tablero de referencia precargado",
+  "descripcion": "La app arranca con el tablero MEC de 5 unidades como ejemplo editable, para aprender tocando.",
+  "fase": "F1-MVP",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "PLA-06",
+  "modulo": "plataforma",
+  "nombre": "Compartir por WhatsApp en un toque",
+  "descripcion": "Cualquier PDF, imagen o lista (presupuesto, pedido de compra, render, estado del tablero) se envía desde la hoja de compartir del iPhone con un mensaje ya redactado.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "PLA-07",
+  "modulo": "plataforma",
+  "nombre": "Exportación abierta de listas y proyecto",
+  "descripcion": "Toda lista (materiales, cables, bornes, etiquetas) sale en CSV o XLSX y el proyecto completo en un JSON documentado, para respaldo y para usar en otras herramientas.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "PLA-08",
+  "modulo": "plataforma",
+  "nombre": "Gestos estándar y botones grandes",
+  "descripcion": "Pellizco para acercar, dos dedos para girar, toque largo para opciones; todo tiene además un botón.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "PLA-09",
+  "modulo": "plataforma",
+  "nombre": "Vocabulario del taller",
+  "descripcion": "Textos en español rioplatense con los términos que usa el taller (térmica, guardamotor, bornera, cablecanal), configurables.",
+  "fase": "F1-MVP",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "PLA-10",
+  "modulo": "plataforma",
+  "nombre": "Buscador global",
+  "descripcion": "Desde cualquier pantalla encuentra componente, etiqueta, cable, borne, tablero, cliente o número de serie.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "PLA-11",
+  "modulo": "plataforma",
+  "nombre": "Pantalla siempre encendida y alto contraste",
+  "descripcion": "En modo banco la pantalla no se apaga ni se bloquea, usa letra muy grande y colores de alto contraste, y funciona apaisada con el celular en un soporte.",
+  "fase": "F2-Taller",
+  "impacto": "alto",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "PLA-12",
+  "modulo": "plataforma",
+  "nombre": "Deshacer el último tilde",
+  "descripcion": "Un botón Deshacer visible durante unos segundos después de cada tilde y un historial para reabrir pasos. Ningún toque accidental queda firme sin poder corregirlo.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "PLA-13",
+  "modulo": "plataforma",
+  "nombre": "Notas de voz en cualquier elemento",
+  "descripcion": "Un audio corto adjunto a un componente, un paso, un tablero o una foto.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "PLA-14",
+  "modulo": "plataforma",
+  "nombre": "Papelera",
+  "descripcion": "Lo borrado se puede recuperar durante un tiempo.",
+  "fase": "F2-Taller",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "PLA-15",
+  "modulo": "plataforma",
+  "nombre": "Ayuda en contexto",
+  "descripcion": "Videos cortos y ejemplos dentro de cada pantalla.",
+  "fase": "F2-Taller",
+  "impacto": "bajo",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "PLA-16",
+  "modulo": "plataforma",
+  "nombre": "Sincronización entre celular y computadora",
+  "descripcion": "El mismo proyecto abierto en varios dispositivos, con los cambios de cada uno al instante.",
+  "fase": "F4-Gestion",
+  "impacto": "alto",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "PLA-17",
+  "modulo": "plataforma",
+  "nombre": "Bitácora inalterable de cambios y evidencias",
+  "descripcion": "Registra quién cargó o modificó cada valor, foto y firma. Un protocolo firmado no se edita: se emite una nueva revisión que conserva la anterior.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "PLA-18",
+  "modulo": "plataforma",
+  "nombre": "Seguridad y privacidad",
+  "descripcion": "Permisos por rol, conexión cifrada, fotos de clientes privadas y la clave de la inteligencia artificial solo en el servidor.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "PLA-19",
+  "modulo": "plataforma",
+  "nombre": "Avisos",
+  "descripcion": "Notificación cuando se reporta un faltante, se cierra una etapa o hay una aprobación pendiente.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "PLA-20",
+  "modulo": "plataforma",
+  "nombre": "Pantalla del taller",
+  "descripcion": "El estado de la serie en un monitor o televisor del taller.",
+  "fase": "F4-Gestion",
+  "impacto": "medio",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "PLA-21",
+  "modulo": "plataforma",
+  "nombre": "Inicio de sesión simple",
+  "descripcion": "Acceso con correo o enlace, con recuperación de cuenta.",
+  "fase": "F4-Gestion",
+  "impacto": "bajo",
+  "esfuerzo": "bajo"
+ },
+ {
+  "codigo": "FUT-01",
+  "modulo": "futuro",
+  "nombre": "Biblioteca compartida de componentes",
+  "descripcion": "Fichas de marcas locales compartidas entre talleres.",
+  "fase": "Futuro",
+  "impacto": "medio",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "FUT-02",
+  "modulo": "futuro",
+  "nombre": "Configurador web para clientes",
+  "descripcion": "Página pública donde el cliente elige cantidad de enfriadores y opcionales, ve el tablero en 3D y un precio orientativo, y envía el pedido de presupuesto.",
+  "fase": "Futuro",
+  "impacto": "medio",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "FUT-03",
+  "modulo": "futuro",
+  "nombre": "Diseño completo desde el pliego",
+  "descripcion": "Con cantidad y potencia de motores propone protecciones, layout y presupuesto.",
+  "fase": "Futuro",
+  "impacto": "medio",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "FUT-04",
+  "modulo": "futuro",
+  "nombre": "Gemelo digital en operación",
+  "descripcion": "El modelo 3D muestra en vivo qué soplador o bomba está en marcha en la instalación del cliente.",
+  "fase": "Futuro",
+  "impacto": "medio",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "FUT-05",
+  "modulo": "futuro",
+  "nombre": "Generar el programa del PLC desde la plantilla",
+  "descripcion": "Bloques estándar por unidad con nombres de entradas y salidas coherentes con el diseño.",
+  "fase": "Futuro",
+  "impacto": "medio",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "FUT-06",
+  "modulo": "futuro",
+  "nombre": "Mantenimiento predictivo",
+  "descripcion": "Con horas de marcha y arranques sugiere cambio de contactores o limpieza de electrodos.",
+  "fase": "Futuro",
+  "impacto": "medio",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "FUT-07",
+  "modulo": "futuro",
+  "nombre": "Monitoreo remoto como servicio de abono",
+  "descripcion": "Usando el LOGO! por Ethernet y el Shelly, el tablero entregado reportaría estado y alarmas a su ficha; MEC lo ofrecería como abono de servicio. Requiere validación técnica.",
+  "fase": "Futuro",
+  "impacto": "medio",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "FUT-08",
+  "modulo": "futuro",
+  "nombre": "Ofrecer la app a otros talleres",
+  "descripcion": "Varias empresas en la misma plataforma, cada una con sus datos.",
+  "fase": "Futuro",
+  "impacto": "medio",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "FUT-09",
+  "modulo": "futuro",
+  "nombre": "Capacitación de aprendices",
+  "descripcion": "Modo entrenamiento sobre el tablero patrón con preguntas y evaluación.",
+  "fase": "Futuro",
+  "impacto": "medio",
+  "esfuerzo": "medio"
+ },
+ {
+  "codigo": "FUT-10",
+  "modulo": "futuro",
+  "nombre": "Conexión con proveedores",
+  "descripcion": "Precios y existencias en línea y pedido directo.",
+  "fase": "Futuro",
+  "impacto": "bajo",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "FUT-11",
+  "modulo": "futuro",
+  "nombre": "Instrucciones con visor de realidad mixta",
+  "descripcion": "Los pasos de cableado superpuestos sobre el tablero real.",
+  "fase": "Futuro",
+  "impacto": "bajo",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "FUT-12",
+  "modulo": "futuro",
+  "nombre": "Legajo normativo asistido",
+  "descripcion": "Arma el legajo técnico con las verificaciones de diseño de la norma de tableros.",
+  "fase": "Futuro",
+  "impacto": "bajo",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "FUT-13",
+  "modulo": "futuro",
+  "nombre": "Prefabricado automático de cables",
+  "descripcion": "Exportación a una máquina de corte, pelado y crimpado.",
+  "fase": "Futuro",
+  "impacto": "bajo",
+  "esfuerzo": "alto"
+ },
+ {
+  "codigo": "FUT-14",
+  "modulo": "futuro",
+  "nombre": "Pronóstico de demanda por temporada",
+  "descripcion": "Con el historial de pedidos propone cuántos tableros de cada modelo esperar por mes y qué componentes de plazo largo conviene acopiar antes.",
+  "fase": "Futuro",
+  "impacto": "bajo",
+  "esfuerzo": "medio"
+ }
+]
