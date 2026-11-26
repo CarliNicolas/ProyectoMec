@@ -3,11 +3,20 @@
 // armado paso a paso, pedido de materiales y carpeta del tablero.
 import * as S from './store.js';
 import { evaluar, acomodar, fmt, compDe, listaMateriales } from './layout.js';
-import { listaDeCorte, placasPorRieles, conRieles, tirasDeCarteles, ocupacion, modulosLibres, costo, renumerar, textoPedido, MODULO } from './extras.js';
+import { listaDeCorte, placasPorRieles, conRieles, tirasDeCarteles, ocupacion, modulosLibres, costo, renumerar, textoPedido, materialesDeMontaje, MODULO } from './extras.js';
 import { GRUPOS } from './catalogo.js';
 import { crearVista2D } from './vista2d.js';
 
 const COLOR_GRUPO = { cabecera: '#c8e6c9', guardamotor: '#ffcdd2', fases: '#d1c4e9', termica: '#bbdefb', plc: '#c5cae9', control: '#b2ebf2', rele: '#f8bbd0', contactor: '#ffe0b2', bornera: '#e0e0e0', otros: '#ffffff' };
+// Ancho real de un texto, en "em": se mide con la misma tipografía con que se imprime.
+let medidor = null;
+function emDe(texto, peso) {
+  try {
+    if (!medidor) medidor = document.createElement('canvas').getContext('2d');
+    medidor.font = `${peso} 100px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`;
+    return medidor.measureText(texto).width / 100;
+  } catch (e) { return texto.length * 0.8; }
+}
 const dinero = (v) => `$ ${v.toLocaleString('es-AR', { maximumFractionDigits: 2 })}`;
 
 export function crearHojas(ctx) {
@@ -31,12 +40,15 @@ export function crearHojas(ctx) {
     const out = [];
     ev.avisos.forEach((a) => out.push({ estado: a.estado, titulo: 'Tablero', texto: a.texto }));
     ev.rieles.forEach((r) => {
+      if (r.estado === 'pasado' && r.mensajes.length && !r.items.some((e) => e.estado === 'pasado')) {
+        out.push({ estado: 'pasado', titulo: `Riel ${r.indice + 1} · ${r.nombre}`, texto: r.mensajes.join(' ') });
+      }
       r.items.forEach((e) => {
         if (e.estado === 'ok') return;
         out.push({ estado: e.estado, id: e.id, titulo: `${(e.it && e.it.etiqueta) || e.comp.nombre} · riel ${r.indice + 1}`, texto: e.motivos.join(' ') });
       });
     });
-    ev.sinUbicar.forEach((e) => out.push({ estado: 'justo', id: e.id, titulo: (e.it && e.it.etiqueta) || e.comp.nombre, texto: 'Todavía no está en ningún riel.' }));
+    ev.sinUbicar.forEach((e) => out.push({ estado: e.entra ? 'justo' : 'pasado', id: e.id, titulo: (e.it && e.it.etiqueta) || e.comp.nombre, texto: e.entra ? 'Todavía no está en ningún riel.' : 'Está sin ubicar y no queda lugar libre para todos los que faltan.' }));
     const vistos = new Set();
     Object.values(t.items).forEach((it) => {
       const c = compDe(cat(), it.comp);
@@ -71,27 +83,33 @@ export function crearHojas(ctx) {
   function dlgPlaca() {
     const t = S.tablero();
     let reserva = t.reserva || 0;
-    const cuerpo = () => {
-      const ops = placasPorRieles(t, cat(), { modo: S.estado.ajustes.modo, reserva });
-      return `<p class="nota">La placa más chica donde entran todos los componentes de este tablero, probando con un riel menos, los mismos y uno más. Placa actual: <b>${fmt(t.placa.ancho)} × ${fmt(t.placa.alto)} mm</b>.</p>
+    const tarjetas = () => placasPorRieles(t, cat(), { modo: S.estado.ajustes.modo, reserva }).map((o) => `<div class="tarjeta" style="cursor:default"><span style="flex:1"><b>${fmt(o.ancho)} × ${fmt(o.alto)} mm · ${plural(o.rieles, 'riel', 'rieles')}${o.actual ? ' (como ahora)' : ''}</b>
+          <span>${o.actual ? (o.sobraAncho >= 0 && o.sobraAlto >= 0 ? `La placa actual alcanza: sobran ${fmt(o.sobraAncho)} mm de ancho y ${fmt(o.sobraAlto)} mm de alto.` : `La placa actual queda chica: ${o.sobraAncho < 0 ? `faltan ${fmt(-o.sobraAncho)} mm de ancho` : ''}${o.sobraAncho < 0 && o.sobraAlto < 0 ? ' y ' : ''}${o.sobraAlto < 0 ? `faltan ${fmt(-o.sobraAlto)} mm de alto` : ''}.`) : 'Reparte los mismos componentes en otra cantidad de rieles.'}</span></span>
+          <button type="button" class="chico primario" data-usar="${o.rieles}" data-ancho="${o.ancho}" data-alto="${o.alto}">Usar</button></div>`).join('');
+    abrir('¿Qué placa necesito?', `<p class="nota">La placa más chica donde entran todos los componentes de este tablero, probando con un riel menos, los mismos y uno más. Placa actual: <b>${fmt(t.placa.ancho)} × ${fmt(t.placa.alto)} mm</b>.</p>
         <div class="campo"><label for="pReserva">Lugar libre que tiene que quedar en cada riel (%)</label>
           <div class="atajos"><input id="pReserva" type="number" inputmode="decimal" min="0" max="60" value="${reserva}" style="max-width:110px">${[0, 10, 20, 30].map((v) => `<button type="button" class="chico" data-res="${v}">${v} %</button>`).join('')}</div></div>
-        <div class="tarjetas">${ops.map((o) => `<div class="tarjeta" style="cursor:default"><span style="flex:1"><b>${fmt(o.ancho)} × ${fmt(o.alto)} mm · ${plural(o.rieles, 'riel', 'rieles')}${o.actual ? ' (como ahora)' : ''}</b>
-          <span>${o.actual ? (o.sobraAncho >= 0 && o.sobraAlto >= 0 ? `La placa actual alcanza: sobran ${fmt(o.sobraAncho)} mm de ancho y ${fmt(o.sobraAlto)} mm de alto.` : `La placa actual queda chica: ${o.sobraAncho < 0 ? `faltan ${fmt(-o.sobraAncho)} mm de ancho` : ''}${o.sobraAncho < 0 && o.sobraAlto < 0 ? ' y ' : ''}${o.sobraAlto < 0 ? `faltan ${fmt(-o.sobraAlto)} mm de alto` : ''}.`) : 'Reparte los mismos componentes en otra cantidad de rieles.'}</span></span>
-          <button type="button" class="chico primario" data-usar="${o.rieles}" data-ancho="${o.ancho}" data-alto="${o.alto}">Usar</button></div>`).join('')}</div>
-        <p class="nota" style="margin-top:10px">El alto considera el aparato más alto más ${fmt(t.holguraCanal)} mm de aire contra el cablecanal de cada lado. “Usar” cambia la placa y vuelve a acomodar; con ↶ se deshace.</p>`;
-    };
-    const montar = () => abrir('¿Qué placa necesito?', cuerpo(), '<button value="ok">Cerrar</button>', (d) => {
-      const leer = () => { reserva = Math.max(0, Math.min(60, num($('#pReserva', d).value, 0))); };
-      $('#pReserva', d).addEventListener('change', () => { leer(); montar(); });
-      $$('[data-res]', d).forEach((b) => b.addEventListener('click', () => { reserva = Number(b.dataset.res); montar(); }));
-      $$('[data-usar]', d).forEach((b) => b.addEventListener('click', () => {
+        <div class="tarjetas" id="pTarjetas">${tarjetas()}</div>
+        <p class="nota" style="margin-top:10px">El alto considera el aparato más alto más ${fmt(t.holguraCanal)} mm de aire contra el cablecanal de cada lado. Los rieles con largo cargado a mano acompañan el cambio de ancho. “Usar” cambia la placa y vuelve a acomodar; con ↶ se deshace.</p>`,
+    '<button value="ok">Cerrar</button>', (d) => {
+      // Solo se rehacen las tarjetas, y mientras se escribe: al tocar "Usar" ya están al día y el toque no se pierde.
+      let espera = null;
+      const recalcular = () => { reserva = Math.max(0, Math.min(60, num($('#pReserva', d).value, 0))); $('#pTarjetas', d).innerHTML = tarjetas(); };
+      $('#pReserva', d).addEventListener('input', () => { clearTimeout(espera); espera = setTimeout(recalcular, 200); });
+      $$('[data-res]', d).forEach((b) => b.addEventListener('click', () => { clearTimeout(espera); $('#pReserva', d).value = b.dataset.res; recalcular(); }));
+      $('#pTarjetas', d).addEventListener('click', (e) => {
+        const b = e.target.closest('[data-usar]');
+        if (!b) return;
+        clearTimeout(espera);
+        const pedida = Math.max(0, Math.min(60, num($('#pReserva', d).value, 0)));
+        if (pedida !== reserva) { recalcular(); aviso('Cambió la reserva: revisá las medidas y volvé a tocar “Usar”.', 'justo'); return; }
         const k = Number(b.dataset.usar);
         S.cambiar((x) => {
           const nuevo = conRieles(x, k);
           x.rieles = nuevo.rieles;
           x.sinUbicar = nuevo.sinUbicar;
-          x.rieles.forEach((r) => { r.largo = null; delete r.x0; });
+          const delta = Number(b.dataset.ancho) - x.placa.ancho;
+          x.rieles.forEach((r) => { if (r.largo != null) r.largo = Math.max(0, r.largo + delta); });
           x.placa.ancho = Number(b.dataset.ancho);
           x.placa.alto = Number(b.dataset.alto);
           x.reserva = reserva;
@@ -101,9 +119,8 @@ export function crearHojas(ctx) {
         cerrar();
         render();
         aviso(`Placa de ${b.dataset.ancho} × ${b.dataset.alto} mm con ${plural(k, 'riel', 'rieles')}.`, evaluar(S.tablero(), cat()).estado);
-      }));
+      });
     });
-    montar();
   }
 
   // -------------------------------------------------------------------------
@@ -124,17 +141,22 @@ export function crearHojas(ctx) {
     const t = S.tablero();
     let cantidad = t.cantidad || 1;
     let barra = 2000;
-    const montar = () => abrir('Lista de corte', `
+    abrir('Lista de corte', `
       <div class="fila"><div><label for="cCant">Tableros iguales a armar</label><input id="cCant" type="number" inputmode="numeric" min="1" max="99" value="${cantidad}"></div>
         <div><label for="cBarra">Largo de la barra (mm)</label><input id="cBarra" type="number" inputmode="numeric" min="200" value="${barra}"></div></div>
-      ${htmlCorte(t, { cantidad, largoBarra: barra })}
-      <p class="nota">Salen de las medidas cargadas en “Medidas del tablero”. Si la placa tiene medidas estimadas, los cortes también lo son.</p>`,
-    '<button value="ok">Cerrar</button><button type="button" id="cImprimir" class="primario">Imprimir</button>', (d) => {
-      const leer = () => { cantidad = Math.max(1, Math.round(num($('#cCant', d).value, 1))); barra = Math.max(200, num($('#cBarra', d).value, 2000)); };
-      ['#cCant', '#cBarra'].forEach((q) => $(q, d).addEventListener('change', () => { leer(); if (cantidad !== (t.cantidad || 1)) S.cambiar((x) => { x.cantidad = cantidad; }, { deshacer: false }); montar(); }));
+      <div id="cTabla">${htmlCorte(t, { cantidad, largoBarra: barra })}</div>
+      <p class="nota">Salen de las medidas cargadas en “Medidas del tablero”. Si la placa tiene medidas estimadas, los cortes también lo son. Los cablecanales verticales van de una pieza y los horizontales del medio se cortan entre ellos.</p>`,
+    '<button value="ok">Cerrar</button><button type="button" id="cImprimir" class="primario" data-sin-enter>Imprimir</button>', (d) => {
+      const leer = () => { cantidad = Math.max(1, Math.min(999, Math.round(num($('#cCant', d).value, 1)))); barra = Math.max(200, num($('#cBarra', d).value, 2000)); };
+      const recalcular = () => { leer(); $('#cTabla', d).innerHTML = htmlCorte(S.tablero(), { cantidad, largoBarra: barra }); };
+      ['#cCant', '#cBarra'].forEach((q) => $(q, d).addEventListener('input', recalcular));
+      // la cantidad queda guardada en el tablero (sirve para el pedido y los materiales), salvo que esté bloqueado
+      $('#cCant', d).addEventListener('change', () => {
+        leer();
+        if (!ctx.bloqueado() && cantidad !== (S.tablero().cantidad || 1)) S.cambiar((x) => { x.cantidad = cantidad; }, { deshacer: false, motivo: 'campo' });
+      });
       $('#cImprimir', d).addEventListener('click', () => { leer(); cerrar(); imprimir(encabezado(S.tablero(), 'Lista de corte') + htmlCorte(S.tablero(), { cantidad, largoBarra: barra })); });
     });
-    montar();
   }
 
   // -------------------------------------------------------------------------
@@ -165,8 +187,8 @@ export function crearHojas(ctx) {
     if (c.vacio) return `<div class="cartel vacio" style="width:${c.ancho}mm"></div>`;
     const texto = c.texto || '';
     const lineas = funcion && c.ancho >= 30 ? 2 : 1;
-    const fs = Math.max(1.6, Math.min(alto * (lineas === 2 ? 0.3 : 0.42), (c.ancho - 1.5) / (Math.max(2, texto.length) * 0.62)));
-    const fs2 = Math.max(1.4, Math.min(alto * 0.16, (c.ancho - 1.5) / (Math.max(4, c.detalle.length) * 0.5)));
+    const fs = Math.max(1.2, Math.min(alto * (lineas === 2 ? 0.3 : 0.42), (c.ancho - 1.5) / Math.max(1.24, emDe(texto, 'bold'))));
+    const fs2 = Math.max(1.1, Math.min(alto * 0.16, (c.ancho - 1.5) / Math.max(2, emDe(c.detalle, 'normal'))));
     return `<div class="cartel" style="width:${c.ancho}mm;${color ? `background:${COLOR_GRUPO[c.grupo] || '#fff'}` : ''}"><b style="font-size:${fs.toFixed(2)}mm">${esc(texto)}</b>${lineas === 2 ? `<span style="font-size:${fs2.toFixed(2)}mm">${esc(c.detalle)}</span>` : ''}</div>`;
   }).join('')}</div>`);
       });
@@ -186,25 +208,24 @@ export function crearHojas(ctx) {
 
   function dlgCarteles() {
     const o = { alto: 25, anchoHoja: 180, color: true, funcion: true };
-    const montar = () => {
-      const t = S.tablero();
-      const ev = evaluar(t, cat());
-      abrir('Carteles y etiquetas', `
+    const t = S.tablero();
+    const ev = evaluar(t, cat());
+    abrir('Carteles y etiquetas', `
         <p class="nota">Una tira por riel, con cada cartel del ancho exacto de su aparato, para pegar sobre la tapa del cablecanal. Se imprime a tamaño real.</p>
         <div class="fila"><div><label for="kAlto">Alto de la tira (mm)</label><input id="kAlto" type="number" inputmode="decimal" min="8" max="60" value="${o.alto}"></div>
-          <div><label for="kHoja">Ancho útil de la hoja (mm)</label><select id="kHoja"><option value="180"${o.anchoHoja === 180 ? ' selected' : ''}>A4 vertical (180)</option><option value="265"${o.anchoHoja === 265 ? ' selected' : ''}>A4 apaisada (265)</option></select></div></div>
-        <label class="opcion"><input id="kColor" type="checkbox" ${o.color ? 'checked' : ''}>Color según la función</label>
-        <label class="opcion"><input id="kFuncion" type="checkbox" ${o.funcion ? 'checked' : ''}>Agregar el nombre del componente debajo de la etiqueta</label>
+          <div><label for="kHoja">Ancho útil de la hoja (mm)</label><select id="kHoja"><option value="180" selected>A4 vertical (180)</option><option value="265">A4 apaisada (265)</option></select></div></div>
+        <label class="opcion"><input id="kColor" type="checkbox" checked>Color según la función</label>
+        <label class="opcion"><input id="kFuncion" type="checkbox" checked>Agregar el nombre del componente debajo de la etiqueta</label>
         <h3>Vista previa</h3>
-        <div class="previa">${htmlCarteles(ev, o)}</div>`,
-      '<button type="button" id="kCsv">Planilla para la rotuladora</button><button type="button" id="kImprimir" class="primario">Imprimir a escala real</button>', (d) => {
-        const leer = () => { o.alto = Math.max(8, Math.min(60, num($('#kAlto', d).value, 25))); o.anchoHoja = Number($('#kHoja', d).value); o.color = $('#kColor', d).checked; o.funcion = $('#kFuncion', d).checked; };
-        ['#kAlto', '#kHoja', '#kColor', '#kFuncion'].forEach((q) => $(q, d).addEventListener('change', () => { leer(); montar(); }));
-        $('#kCsv', d).addEventListener('click', () => ctx.descargar(`${ctx.nombreArchivo(t)}-etiquetas.csv`, csvCarteles(t, ev), 'text/csv;charset=utf-8'));
-        $('#kImprimir', d).addEventListener('click', () => { leer(); cerrar(); imprimir(encabezado(t, 'Carteles') + htmlCarteles(evaluar(S.tablero(), cat()), o), o.anchoHoja > 200 ? 'apaisada' : ''); });
-      });
-    };
-    montar();
+        <div class="previa" id="kPrevia">${htmlCarteles(ev, o)}</div>`,
+    '<button type="button" id="kCsv">Planilla para la rotuladora</button><button type="button" id="kImprimir" class="primario" data-sin-enter>Imprimir a escala real</button>', (d) => {
+      const leer = () => { o.alto = Math.max(8, Math.min(60, num($('#kAlto', d).value, 25))); o.anchoHoja = Number($('#kHoja', d).value); o.color = $('#kColor', d).checked; o.funcion = $('#kFuncion', d).checked; };
+      const recalcular = () => { leer(); $('#kPrevia', d).innerHTML = htmlCarteles(ev, o); };
+      $('#kAlto', d).addEventListener('input', recalcular);
+      ['#kHoja', '#kColor', '#kFuncion'].forEach((q) => $(q, d).addEventListener('change', recalcular));
+      $('#kCsv', d).addEventListener('click', () => ctx.descargar(`${ctx.nombreArchivo(t)}-etiquetas.csv`, csvCarteles(t, ev), 'text/csv;charset=utf-8'));
+      $('#kImprimir', d).addEventListener('click', () => { leer(); cerrar(); imprimir(encabezado(t, 'Carteles') + htmlCarteles(evaluar(S.tablero(), cat()), o), o.anchoHoja > 200 ? 'apaisada' : ''); });
+    });
   }
 
   // -------------------------------------------------------------------------
@@ -227,6 +248,7 @@ export function crearHojas(ctx) {
   }).join('')}
       </tbody></table>
       ${veces > 1 ? `<p class="nota">Cantidades para ${veces} tableros iguales.</p>` : ''}
+      ${(() => { const mm = materialesDeMontaje(t); return mm.length ? `<h3>Para el montaje</h3><table class="bom"><tbody>${mm.map((x) => `<tr><td class="num">${x.cantidad}</td><td>${esc(x.unidad)}</td><td>${esc(x.nombre)}</td><td>${esc(x.detalle)}</td></tr>`).join('')}</tbody></table>` : ''; })()}
       ${hayPrecios ? `<p><b>Total de materiales: ${dinero(c.totalSerie)}</b>${c.sinPrecio ? ` <span class="nota">(${plural(c.sinPrecio, 'aparato sin precio cargado', 'aparatos sin precio cargado')} por tablero)</span>` : ''}</p>` : ''}`;
   }
 
@@ -260,7 +282,8 @@ export function crearHojas(ctx) {
     const partes = [];
     if (hojas.plano) partes.push(`${encabezado(t, 'Plano con medidas')}<svg data-plano xmlns="http://www.w3.org/2000/svg"></svg>
       <table class="bom" style="margin-top:4mm"><thead><tr><th>Riel</th><th class="num">Eje desde arriba</th><th class="num">Inicio desde la izquierda</th><th class="num">Largo</th><th class="num">Ocupado</th><th class="num">Libre</th></tr></thead><tbody>
-      ${ev.rieles.map((r) => `<tr><td>${r.indice + 1} · ${esc(r.nombre)}</td><td class="num">${fmt(r.geo.yCentro)}</td><td class="num">${fmt(r.geo.x0)}</td><td class="num">${fmt(r.largo)}</td><td class="num">${fmt(r.ocupado)}</td><td class="num">${r.libre < 0 ? `se pasa ${fmt(-r.libre)}` : fmt(r.libre)}</td></tr>`).join('')}</tbody></table>`);
+      ${ev.rieles.map((r) => `<tr><td>${r.indice + 1} · ${esc(r.nombre)}</td><td class="num">${fmt(r.geo.yCentro)}</td><td class="num">${fmt(r.geo.x0)}</td><td class="num">${fmt(r.largo)}</td><td class="num">${fmt(r.ocupado)}</td><td class="num">${r.libre < 0 ? `se pasa ${fmt(-r.libre)}` : fmt(r.libre)}</td></tr>`).join('')}</tbody></table>
+      ${t.notas ? `<p class="nota-taller" style="margin-top:4mm"><b>Notas del taller:</b> ${esc(t.notas)}</p>` : ''}`);
     if (hojas.materiales) partes.push(`${encabezado(t, 'Lista de materiales')}${htmlMateriales(t)}`);
     if (hojas.corte) partes.push(`${encabezado(t, 'Lista de corte')}${htmlCorte(t)}`);
     if (hojas.leyenda) partes.push(`${encabezado(t, 'Referencias para la puerta')}${htmlLeyenda(t, ev)}`);
@@ -338,7 +361,7 @@ export function crearHojas(ctx) {
     const total = ev.rieles.reduce((s, r) => s + r.items.filter((e) => !e.comp.hueco).length, 0);
     const hechos = ev.rieles.reduce((s, r) => s + r.items.filter((e) => !e.comp.hueco && t.armado && t.armado[e.id]).length, 0);
     const pct = total ? (hechos / total) * 100 : 0;
-    return `<div class="armar-cab"><b>Montados ${hechos} de ${total}</b>
+    return `${t.notas ? `<div class="nota-taller"><b>Notas:</b> ${esc(t.notas)}</div>` : ''}<div class="armar-cab"><b>Montados ${hechos} de ${total}</b>
         <div class="barra-ocup"><i style="width:${pct.toFixed(1)}%"></i></div>
         <p class="nota">Tildá cada aparato cuando lo colocás en el tablero real. En el plano queda marcado con un tilde verde. La posición es desde el inicio del riel.</p>
         ${hechos ? '<button class="chico" data-acc="armar-reiniciar">Empezar de nuevo</button>' : ''}</div>

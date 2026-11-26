@@ -1,5 +1,5 @@
 // Estado de la app: tableros guardados en este dispositivo, catálogo propio, deshacer y compartir.
-import { CATALOGO_BASE } from './catalogo.js';
+import { CATALOGO_BASE, GRUPOS } from './catalogo.js';
 import { generarDesdePreseleccion, clonarTablero, nuevoId } from './plantillas.js';
 import { acomodar } from './layout.js';
 
@@ -114,12 +114,13 @@ export function cambiar(fn, { deshacer = true, motivo = 'tablero' } = {}) {
 
 export function puedeDeshacer() { return historia.pasado.length > 0; }
 export function puedeRehacer() { return historia.futuro.length > 0; }
-// La foto y el avance del armado no forman parte del deshacer: se conservan los actuales.
+// La foto, el avance del armado y la cantidad de tableros iguales no forman parte del deshacer: se conservan los actuales.
 function restaurar(t, texto) {
   const viejo = JSON.parse(texto);
   viejo.foto = t.foto;
   viejo.fotoPropia = t.fotoPropia;
   viejo.armado = t.armado || {};
+  viejo.cantidad = t.cantidad;
   estado.tableros[t.id] = viejo;
 }
 export function deshacer() {
@@ -229,6 +230,10 @@ export async function guardarFoto(dataURL) {
 }
 export async function borrarFoto(clave) {
   if (!clave || !clave.startsWith('idb:')) return;
+  const enUso = Object.values(estado.tableros).some((t) => t.foto === clave)
+    || estado.preselecciones.some((x) => x.tablero && x.tablero.foto === clave)
+    || Object.values(estado.catalogo).some((c) => c.foto === clave);
+  if (enUso) return;
   fotos.delete(clave);
   try { await tx('readwrite', (s) => s.delete(clave)); } catch (e) { /* nada */ }
 }
@@ -319,7 +324,8 @@ const texto = (v, max = 80) => String(v ?? '').replace(/[\u0000-\u001f]/g, ' ').
 const numero = (v, def, min = 0, max = 100000) => { const n = Number(v); return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : def; };
 const fotoSegura = (v) => (typeof v === 'string' && /^img\/[a-z0-9/_-]+\.(jpg|png|webp)$/i.test(v) && !v.includes('..') ? v : undefined);
 const colorSeguro = (v) => (typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v) ? v : '#dddddd');
-const idSeguro = (v) => (typeof v === 'string' && /^[\w.-]{1,60}$/.test(v) ? v : null);
+const idSeguro = (v) => (typeof v === 'string' && /^[\w.-]{1,60}$/.test(v) && !(v in Object.prototype) ? v : null);
+const propia = (o, k) => typeof k === 'string' && Object.prototype.hasOwnProperty.call(o, k);
 
 function sanearComponente(c) {
   const id = idSeguro(c && c.id);
@@ -327,7 +333,7 @@ function sanearComponente(c) {
   return {
     id, nombre: texto(c.nombre) || 'Componente', marca: texto(c.marca, 40), ref: texto(c.ref, 60),
     ancho: numero(c.ancho, 18, 1, 2000), alto: numero(c.alto, 85, 1, 2000), prof: numero(c.prof, 70, 1, 2000),
-    grupo: texto(c.grupo, 20) || 'otros', color: colorSeguro(c.color), medida: c.medida === 'catalogo' ? 'catalogo' : c.medida === 'medida' ? 'medida' : 'estimada',
+    grupo: GRUPOS.some((g) => g.id === c.grupo) ? c.grupo : 'otros', color: colorSeguro(c.color), medida: c.medida === 'catalogo' ? 'catalogo' : c.medida === 'medida' ? 'medida' : 'estimada',
     foto: fotoSegura(c.foto), precio: c.precio != null && Number(c.precio) > 0 ? numero(c.precio, 0, 0, 1e12) : undefined, hueco: c.hueco === true ? true : undefined,
   };
 }
@@ -338,10 +344,10 @@ function sanearTablero(o) {
   Object.values(o.items).slice(0, 3000).forEach((it) => {
     const id = idSeguro(it && it.id);
     const comp = idSeguro(it && it.comp);
-    if (id && comp) items[id] = { id, comp, etiqueta: texto(it.etiqueta, 24), sep: numero(it.sep, 0, 0, 5000) };
+    if (id && comp) items[id] = { id, comp, etiqueta: texto(it.etiqueta, 24), sep: numero(it.sep, 0, 0, 5000), ...(it.fijo === true ? { fijo: true } : {}) };
   });
   const usados = new Set();
-  const lista = (arr) => (Array.isArray(arr) ? arr : []).filter((id) => items[id] && !usados.has(id) && usados.add(id));
+  const lista = (arr) => (Array.isArray(arr) ? arr : []).filter((id) => propia(items, id) && !usados.has(id) && usados.add(id));
   const rieles = o.rieles.slice(0, 40).map((r, i) => {
     const riel = { id: idSeguro(r && r.id) || nuevoId('r'), nombre: texto(r && r.nombre, 40) || `Riel ${i + 1}`, largo: r && r.largo != null ? numero(r.largo, null, 0, 20000) : null, items: lista(r && r.items) };
     if (r && r.x0 != null) riel.x0 = numero(r.x0, 0, 0, 20000);
@@ -352,7 +358,7 @@ function sanearTablero(o) {
   const placa = o.placa || {};
   const canal = o.canal || {};
   const armado = {};
-  if (o.armado && typeof o.armado === 'object') Object.keys(o.armado).slice(0, 3000).forEach((id) => { if (items[id] && o.armado[id]) armado[id] = true; });
+  if (o.armado && typeof o.armado === 'object') Object.keys(o.armado).slice(0, 3000).forEach((id) => { if (propia(items, id) && o.armado[id]) armado[id] = true; });
   const grupoOk = (g) => typeof g === 'string' && /^[a-z]{1,20}$/.test(g);
   const ordenGrupos = Array.isArray(o.ordenGrupos) ? o.ordenGrupos.filter(grupoOk).slice(0, 20) : undefined;
   let rielDeGrupo;
@@ -377,16 +383,34 @@ function sanearTablero(o) {
 }
 
 /** Incorpora un paquete recibido (por enlace o archivo) como tablero nuevo. */
+/**
+ * Abre un tablero recibido. Nunca pisa un componente de este dispositivo: si el tablero trae uno con el mismo
+ * nombre de catálogo pero otras medidas (quien lo mandó lo corrigió), se agrega aparte y el tablero usa ese,
+ * para que "entra / no entra" dé lo mismo que en el dispositivo de origen.
+ * Devuelve cuántos componentes llegaron con medidas distintas.
+ */
 export function importarPaquete(p) {
   if (!p || p.app !== 'tableros-mec' || !p.tablero) throw new Error('El archivo no es un tablero de esta app.');
   const t = sanearTablero(p.tablero);
+  const cambiados = new Map();
+  const mismas = (a, b) => a.ancho === b.ancho && a.alto === b.alto && a.prof === b.prof;
   (Array.isArray(p.componentes) ? p.componentes : []).slice(0, 500).forEach((c) => {
     const limpio = sanearComponente(c);
-    // nunca pisa un componente que ya existe en este dispositivo
-    if (limpio && !catalogo()[limpio.id]) estado.catalogo[limpio.id] = limpio;
+    if (!limpio) return;
+    catCache = null;
+    const mio = catalogo()[limpio.id];
+    if (!mio) { estado.catalogo[limpio.id] = limpio; return; }
+    if (mismas(mio, limpio)) return;
+    const nombre = `${limpio.nombre} (recibido)`.slice(0, 80);
+    const igual = Object.values(estado.catalogo).find((x) => x.nombre === nombre && x.marca === limpio.marca && x.ref === limpio.ref && mismas(x, limpio));
+    const id = igual ? igual.id : nuevoId('c');
+    if (!igual) estado.catalogo[id] = { ...limpio, id, nombre };
+    cambiados.set(limpio.id, id);
   });
+  Object.values(t.items).forEach((it) => { if (cambiados.has(it.comp)) it.comp = cambiados.get(it.comp); });
   catCache = null;
-  return agregarTablero(t);
+  agregarTablero(t);
+  return cambiados.size;
 }
 
 // ------------------------------- copia de seguridad de todo -------------------------------
@@ -413,12 +437,15 @@ export function restaurarCopia(p) {
   catCache = null;
   const huella = (t) => { const { id, foto, fotoPropia, armado, ...resto } = t; return JSON.stringify(resto); };
   const limpio = (o) => { try { return sanearTablero(o); } catch (e) { return null; } };
-  const yaEstan = new Set(listaTableros().map(limpio).filter(Boolean).map(huella));
+  // Se cuenta cuántos tableros iguales hay: si la copia trae dos idénticos y acá hay uno, entra el que falta.
+  const yaEstan = new Map();
+  listaTableros().map(limpio).filter(Boolean).forEach((t) => { const h = huella(t); yaEstan.set(h, (yaEstan.get(h) || 0) + 1); });
   let n = 0;
-  p.tableros.slice(0, 200).forEach((o) => {
+  p.tableros.forEach((o) => {
     const t = limpio(o); // el que esté roto se saltea
-    if (!t || yaEstan.has(huella(t))) return;
-    yaEstan.add(huella(t));
+    if (!t) return;
+    const h = huella(t);
+    if (yaEstan.get(h) > 0) { yaEstan.set(h, yaEstan.get(h) - 1); return; }
     estado.tableros[t.id] = t;
     estado.orden.push(t.id);
     n += 1;
@@ -434,4 +461,19 @@ export function restaurarCopia(p) {
   guardar();
   avisar('tableros');
   return n;
+}
+
+// ------------------------------- dos pestañas abiertas -------------------------------
+// Si otra pestaña (o la app instalada) guardó cambios, se cargan acá: así esta pestaña no los pisa con su copia vieja.
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+  window.addEventListener('storage', (e) => {
+    if (e.key !== CLAVE || !e.newValue) return;
+    clearTimeout(guardarPendiente);
+    const abierto = estado.actual;
+    cargar();
+    if (estado.tableros[abierto]) estado.actual = abierto;
+    historia.pasado = [];
+    historia.futuro = [];
+    avisar('tablero');
+  });
 }

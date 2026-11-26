@@ -5,7 +5,7 @@ import { PRESELECCIONES, agregarItem, agregarRiel } from './plantillas.js';
 import { GRUPOS } from './catalogo.js';
 import { crearVista2D } from './vista2d.js';
 import { crearHojas } from './hojas.js';
-import { agregarUnidad, puedeAgregarUnidad, costo } from './extras.js';
+import { agregarUnidad, puedeAgregarUnidad, costo, materialesDeMontaje } from './extras.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -38,7 +38,7 @@ const vista2d = crearVista2D(svg, {
 
 function miniatura(comp, clase = '') {
   const u = S.urlFoto(comp.foto);
-  return u ? `<img ${clase ? `class="${clase}"` : ''} src="${esc(u)}" alt="" loading="lazy">` : `<span class="cuad ${clase}" style="background:${esc(comp.color || '#ddd')}"></span>`;
+  return u ? `<img ${clase ? `class="${clase}"` : ''} src="${esc(u)}" alt="" loading="lazy" draggable="false">` : `<span class="cuad ${clase}" style="background:${esc(comp.color || '#ddd')}"></span>`;
 }
 
 /** Devuelve false (y avisa) si el tablero está bloqueado. */
@@ -132,6 +132,7 @@ function pintarRieles(t) {
     partes.push('<div class="avisos"><div class="amarillo">Las medidas de esta placa son <b>estimadas a partir de fotos</b>. <button class="chico" data-acc="medidas">Cargar las medidas reales</button></div></div>');
   }
   if (ev.avisos.length) partes.push(`<div class="avisos">${ev.avisos.map((a) => `<div>${esc(a.texto)}</div>`).join('')}</div>`);
+  if (t.notas) partes.push(`<div class="nota-taller"><b>Notas:</b> ${esc(t.notas)}</div>`);
   partes.push(hojas.htmlOcupacion(t, ev));
   ev.rieles.forEach((r) => {
     const pct = r.largo > 0 ? Math.min(100, (r.ocupado / r.largo) * 100) : 100;
@@ -151,13 +152,14 @@ function datosHoja(t, id) {
   const e = ui.ev.porItem[id];
   const sin = ui.ev.sinUbicar.find((x) => x.id === id);
   const estado = e ? e.estado : sin && !sin.entra ? 'pasado' : 'justo';
-  const motivos = e ? (e.motivos.length ? e.motivos : ['Entra bien.']) : [sin && !sin.entra ? 'No entra en ningún riel: no queda lugar libre de este ancho.' : 'Todavía no está en ningún riel.'];
+  const motivos = e ? (e.motivos.length ? e.motivos : ['Entra bien.']) : [sin && !sin.entra ? 'No entra: no queda lugar libre para todos los que están sin ubicar.' : 'Todavía no está en ningún riel.'];
   return { it, comp, e, estado, motivos };
 }
 
 function pintarHoja(t) {
   const hoja = $('#hoja');
   const id = ui.sel;
+  document.body.classList.toggle('con-ficha', !!(id && t.items[id]));
   if (!id || !t.items[id]) { hoja.hidden = true; hoja.innerHTML = ''; ui.hojaPara = null; return; }
   const { it, comp, estado, motivos } = datosHoja(t, id);
   const ub = ubicacionDe(t, id);
@@ -180,11 +182,13 @@ function pintarHoja(t) {
         <button data-acc="der" title="Mover a la derecha">▶</button>
         <button data-acc="arriba" title="Al riel de arriba" ${ub.riel === 0 ? 'disabled' : ''}>▲ riel</button>
         <button data-acc="abajo" title="Al riel de abajo" ${ub.riel === t.rieles.length - 1 ? 'disabled' : ''}>▼ riel</button>
-        <button data-acc="duplicar" class="ancha">Duplicar</button>
+        <button data-acc="duplicar">Duplicar</button>
+        <button data-acc="fijar" aria-pressed="${it.fijo ? 'true' : 'false'}" title="Fijado: “Acomodar” no lo cambia de riel">${it.fijo ? '📌 Fijado' : '📌 Fijar'}</button>
         <button data-acc="sacar">Sacar</button>
         <button data-acc="eliminar" class="peligro">Borrar</button>
       </div>
-      <p class="nota tactil" style="margin:8px 0 0">También se puede arrastrar a otro lugar o a otro riel.</p>`;
+      ${ui.pistaVista ? '' : '<p class="nota tactil" style="margin:8px 0 0">También se puede arrastrar a otro riel. Con 📌 queda fijo en su riel al acomodar.</p>'}`;
+    ui.pistaVista = true;
   } else {
     acciones = `<label style="margin-top:10px">Poner en el riel</label>
       <div class="rieles-dest">${ui.ev.rieles.map((r) => `<button data-acc="poner" data-riel="${r.indice}" class="${comp.ancho <= r.libre + 0.05 ? '' : 'peligro'}">${r.indice + 1} · ${esc(r.nombre)} <small>(libre ${fmt(Math.max(0, r.libre))})</small></button>`).join('')}</div>
@@ -194,7 +198,7 @@ function pintarHoja(t) {
     <div class="cab">${miniatura(comp)}
       <div class="dat"><b id="hTitulo">${esc(it.etiqueta || comp.nombre)}</b>
         <span>${esc(comp.nombre)}${comp.marca ? ` · ${esc(comp.marca)}` : ''}${comp.ref ? ` ${esc(comp.ref)}` : ''}</span>
-        <span>${fmt(comp.ancho)} × ${fmt(comp.alto)} × ${fmt(comp.prof)} mm${comp.medida === 'estimada' ? ' <span class="insignia">medir</span>' : ''}${enRiel ? ` · riel ${ub.riel + 1}` : ''}</span>
+        <span>${fmt(comp.ancho)} × ${fmt(comp.alto)} × ${fmt(comp.prof)} mm${comp.medida === 'estimada' ? ' <span class="insignia">medir</span>' : ''}${enRiel ? ` · riel ${ub.riel + 1}${it.fijo ? ' · 📌 fijado' : ''}` : ''}</span>
       </div>
       <button class="plano chico" data-acc="cerrar" aria-label="Cerrar">✕</button>
     </div>
@@ -204,8 +208,8 @@ function pintarHoja(t) {
     ui.hojaPara = id;
     hoja.style.pointerEvents = 'none';
     setTimeout(() => { hoja.style.pointerEvents = ''; }, 380);
-    requestAnimationFrame(asegurarVisible);
   }
+  requestAnimationFrame(asegurarVisible);
 }
 
 /** Actualiza el estado de la ficha sin rehacer sus campos (para no sacarle el foco a quien está escribiendo). */
@@ -221,15 +225,21 @@ function actualizarEstadoHoja(t) {
   if (tit) tit.textContent = it.etiqueta || comp.nombre;
 }
 
-/** En pantallas chicas, corre el plano para que el aparato elegido no quede tapado por la ficha. */
+/** Corre el plano para que el aparato elegido quede a la vista: ni debajo de la ficha ni fuera de la pantalla. */
 function asegurarVisible() {
   const hoja = $('#hoja');
-  if (hoja.hidden || ancha() || !ui.sel) return;
+  if (hoja.hidden || !ui.sel) return;
   const g = svg.querySelector(`.ap[data-id="${CSS.escape(ui.sel)}"]`);
-  if (!g) return;
+  if (!g || !g.getClientRects().length) return; // el plano no está en pantalla
   const r = g.getBoundingClientRect();
-  const tope = hoja.getBoundingClientRect().top - 12;
-  if (r.bottom > tope) $('#col2d').scrollBy({ top: r.bottom - tope, behavior: 'smooth' });
+  const h = hoja.getBoundingClientRect();
+  const col = $('#col2d');
+  const barra = $('.herramientas');
+  // la barra de herramientas tapa el plano solo cuando queda pegada arriba
+  const techo = (getComputedStyle(barra).position === 'sticky' ? barra.getBoundingClientRect().bottom : col.getBoundingClientRect().top) + 6;
+  const tope = h.top - 12;
+  if (r.top < techo) col.scrollBy({ top: r.top - techo, behavior: 'smooth' });
+  else if (r.bottom > tope && r.right > h.left && r.left < h.right) col.scrollBy({ top: r.bottom - tope, behavior: 'smooth' });
 }
 
 function vistaDerecha() { return ancha() && ui.vista === '2d' ? '3d' : ui.vista; }
@@ -271,9 +281,9 @@ function pintarFoto(t) {
   $('#vfoto').innerHTML = u
     ? `<img class="foto-ref" src="${esc(u)}" alt="Foto del tablero">
        <p class="nota" style="margin-top:8px">${t.fotoPropia ? 'Foto cargada en este dispositivo.' : 'Foto de referencia de un tablero real de este modelo.'}</p>
-       <div class="barra-foto"><button data-acc="foto-cambiar">Cambiar foto</button><button data-acc="foto-quitar" class="peligro">Quitar foto</button></div>`
+       ${ui.bloqueado ? '' : '<div class="barra-foto"><button data-acc="foto-cambiar">Cambiar foto</button><button data-acc="foto-quitar" class="peligro">Quitar foto</button></div>'}`
     : `<p><b>Este tablero todavía no tiene foto.</b></p><p class="nota">Sacale una foto de frente a la placa o al tablero terminado y queda guardada junto al plano.</p>
-       <div class="barra-foto"><button data-acc="foto-cambiar" class="primario">Agregar foto</button></div>`;
+       ${ui.bloqueado ? '' : '<div class="barra-foto"><button data-acc="foto-cambiar" class="primario">Agregar foto</button></div>'}`;
 }
 
 function pintarLista(t) {
@@ -282,6 +292,7 @@ function pintarLista(t) {
   const c = costo(t, S.catalogo());
   const veces = Math.max(1, Math.round(t.cantidad || 1));
   const bloq = ui.bloqueado;
+  const montaje = materialesDeMontaje(t);
   $('#vlista').innerHTML = `
     <div class="barra-foto" style="margin-top:0">
       ${bloq ? '' : '<button data-acc="agregar" class="primario">＋ Agregar componente</button>'}
@@ -296,7 +307,9 @@ function pintarLista(t) {
         <span>${fmt(f.comp.ancho)} × ${fmt(f.comp.alto)} × ${fmt(f.comp.prof)} mm${f.comp.medida === 'estimada' ? ' <span class="insignia">medir</span>' : ''}${p > 0 ? ` · ${dinero(p)} c/u` : ''}</span></div>
       <div class="cant">${bloq ? '' : `<button class="chico" data-acc="menos" data-comp="${esc(f.comp.id)}" aria-label="Quitar uno">−</button>`}<b>${f.cantidad}</b>${bloq ? '' : `<button class="chico" data-acc="mas" data-comp="${esc(f.comp.id)}" aria-label="Agregar uno">+</button>`}</div>
     </div>`;
-  }).join('') || '<p>No hay componentes. Agregá el primero.</p>'}`;
+  }).join('') || '<p>No hay componentes. Agregá el primero.</p>'}
+    ${montaje.length ? `<h3>Para el montaje${veces > 1 ? ` de los ${veces} tableros` : ''}</h3>${montaje.map((x) => `<div class="item-lista"><span class="cuad"></span><div class="dat"><b>${esc(x.nombre)}</b><span>${esc(x.detalle)}</span></div><div class="cant"><b>${x.cantidad}</b> <span class="nota">${esc(x.unidad)}</span></div></div>`).join('')}
+      <p class="nota" style="margin-top:6px">Sale de la “Lista de corte” del menú, que muestra cada corte.</p>` : ''}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -340,6 +353,7 @@ function seleccionar(id) {
 }
 
 function cambiarVista(v) {
+  if (!ancha() && v !== '2d') ui.sel = null;
   ui.vista = v;
   document.body.dataset.vista = v;
   S.estado.ajustes.vista = v;
@@ -421,6 +435,8 @@ function accionHoja(acc, boton) {
     return;
   }
   S.cambiar((t) => {
+    if (acc === 'fijar') { if (t.items[id].fijo) delete t.items[id].fijo; else t.items[id].fijo = true; }
+    if (acc === 'sacar') delete t.items[id].fijo;
     if (acc === 'izq') colocarItem(t, id, ub.riel, ub.indice - 1);
     if (acc === 'der') colocarItem(t, id, ub.riel, ub.indice + 1);
     if (acc === 'arriba' && ub.riel > 0) colocarItem(t, id, ub.riel - 1, null);
@@ -491,12 +507,13 @@ function abrir(titulo, cuerpo, pie = '', alMontar = null) {
   if (alMontar) alMontar(dlg);
 }
 const cerrar = () => { if (dlg.open) dlg.close(); };
-// Enter dentro de un campo no tiene que cerrar el diálogo: aprieta el botón principal si lo hay.
+// Enter dentro de un campo, una casilla o una lista nunca cierra el diálogo como "Cancelar":
+// confirma lo escrito y aprieta el botón principal, salvo los que imprimen (data-sin-enter).
 dlg.addEventListener('keydown', (e) => {
-  if (e.key !== 'Enter' || !e.target.matches || !e.target.matches('input:not([type="checkbox"]):not([type="radio"]), select')) return;
+  if (e.key !== 'Enter' || !e.target.matches || !e.target.matches('input, select')) return;
   e.preventDefault();
-  e.target.dispatchEvent(new Event('change', { bubbles: true }));
-  const principal = $('footer button.primario[type="button"]', dlg);
+  if (e.target.matches('input:not([type="checkbox"]):not([type="radio"])')) e.target.blur();
+  const principal = $('footer button.primario[type="button"]:not([data-sin-enter])', dlg);
   if (principal) principal.click();
 });
 dlg.addEventListener('close', () => { if (avisoEl.parentElement === dlg) document.body.appendChild(avisoEl); });
@@ -589,8 +606,11 @@ function dlgNuevo() {
 function dlgAcomodar() {
   if (!puedeEditar()) return;
   const actual = S.estado.ajustes.modo || 'equilibrado';
+  const t0 = S.tablero();
+  const fijados = t0.rieles.reduce((n, r) => n + r.items.filter((id) => t0.items[id] && t0.items[id].fijo).length, 0);
   abrir('Acomodar los componentes', `
     <p class="nota">Reubica todos los aparatos en los rieles. Después se puede corregir a mano, y con ↶ se vuelve atrás.</p>
+    ${fijados ? `<label class="opcion"><input id="aFijos" type="checkbox" checked>Respetar ${fijados === 1 ? 'el aparato fijado' : `los ${fijados} aparatos fijados`} (📌): no cambian de riel</label>` : '<p class="nota">Para que un aparato no cambie de riel al acomodar, tocalo y elegí “📌 Fijar en este riel”.</p>'}
     <div class="tarjetas">${MODOS.map((m) => `<label class="tarjeta" style="cursor:pointer"><input type="radio" name="modo" value="${m.id}" ${m.id === actual ? 'checked' : ''} style="width:22px;height:22px;flex-shrink:0">
       <span><b>${esc(m.nombre)}</b><span>${esc(m.detalle)}</span></span></label>`).join('')}</div>`,
   '<button value="cancelar">Cancelar</button><button type="button" id="hacer" class="primario">Acomodar</button>', (d) => {
@@ -598,7 +618,11 @@ function dlgAcomodar() {
       const modo = ($('input[name="modo"]:checked', d) || {}).value || 'equilibrado';
       // El modo elegido vale para esta vez: los tableros nuevos siempre arrancan con el recomendado.
       let res = null;
-      S.cambiar((t) => { res = acomodar(t, S.catalogo(), modo); });
+      const respetar = !$('#aFijos', d) || $('#aFijos', d).checked;
+      S.cambiar((t) => {
+        if (!respetar) Object.values(t.items).forEach((it) => { delete it.fijo; });
+        res = acomodar(t, S.catalogo(), modo);
+      });
       const ev = evaluar(S.tablero(), S.catalogo());
       ui.sel = null;
       cerrar();
@@ -619,6 +643,7 @@ function dlgMedidas() {
       <button type="button" class="chico peligro" data-r="borrar" aria-label="Quitar riel ${i + 1}">✕</button></div>`;
   abrir('Medidas del tablero', `
     <div class="campo"><label for="mNombre">Nombre</label><input id="mNombre" type="text" value="${esc(t.nombre)}"></div>
+    <div class="campo"><label for="mNotas">Notas del taller (salen en “Armar” y en la carpeta impresa)</label><textarea id="mNotas" rows="3" maxlength="2000" placeholder="Por ejemplo: cliente, número de serie, qué falta comprar…">${esc(t.notas || '')}</textarea></div>
     <h3>Placa de montaje</h3>
     <div class="fila"><div><label for="mAncho">Ancho (mm)</label><input id="mAncho" type="number" inputmode="decimal" min="50" value="${t.placa.ancho}"></div>
       <div><label for="mAlto">Alto (mm)</label><input id="mAlto" type="number" inputmode="decimal" min="50" value="${t.placa.alto}"></div></div>
@@ -656,6 +681,7 @@ function dlgMedidas() {
       S.cambiar((x) => {
         const antes = `${x.placa.ancho}x${x.placa.alto}`;
         x.nombre = $('#mNombre', d).value.trim() || x.nombre;
+        x.notas = $('#mNotas', d).value.trim().slice(0, 2000);
         x.placa.ancho = Math.max(50, num($('#mAncho', d).value, x.placa.ancho));
         x.placa.alto = Math.max(50, num($('#mAlto', d).value, x.placa.alto));
         x.profUtil = Math.max(0, num($('#mProf', d).value, 0));
@@ -767,8 +793,9 @@ function dlgComponente(id) {
     $('#eSinFoto', d).addEventListener('click', () => { foto = null; $('#eVista', d).innerHTML = miniatura({ color: $('#eColor', d).value, foto: null }); });
     $('#eCancelar', d).addEventListener('click', dlgCatalogo);
     const rest = $('#eRestaurar', d);
-    if (rest) rest.addEventListener('click', () => { S.restaurarComponente(id); render(); dlgCatalogo(); });
+    if (rest) rest.addEventListener('click', () => { if (!puedeEditar()) return; S.restaurarComponente(id); render(); dlgCatalogo(); });
     $('#eGuardar', d).addEventListener('click', () => {
+      if (!puedeEditar()) return;
       const nombre = $('#eNombre', d).value.trim();
       if (!nombre) { aviso('Falta el nombre.', 'pasado'); $('#eNombre', d).focus(); return; }
       const precio = num($('#ePrecio', d).value, 0);
@@ -869,7 +896,7 @@ function dlgMenu() {
           try {
             const datos = JSON.parse(await f.text());
             if (datos && datos.tipo === 'copia') { const n = S.restaurarCopia(datos); aviso(n ? `Copia restaurada: ${plural(n, 'tablero agregado', 'tableros agregados')}.` : 'Copia restaurada: los tableros de la copia ya estaban en este dispositivo.', 'ok'); }
-            else { S.importarPaquete(datos); aviso('Tablero abierto.', 'ok'); }
+            else { ui.sel = null; aviso(avisoRecibido('Tablero abierto.', S.importarPaquete(datos)), 'ok'); }
           } catch (err) { aviso(err && /tablero|copia/.test(err.message) ? err.message : 'No se pudo abrir el archivo.', 'pasado'); }
         });
       } else if (acc === 'csv') { cerrar(); descargar(`${nombreArchivo(t)}-materiales.csv`, materialesCSV(t, S.catalogo()), 'text/csv;charset=utf-8'); }
@@ -881,7 +908,7 @@ function dlgMenu() {
   });
 }
 
-const hojas = crearHojas({ abrir, cerrar, aviso, render, esc, num, plural, seleccionar: (id) => { if (!ancha()) cambiarVista('2d'); seleccionar(id); }, $, $$, descargar, nombreArchivo, miniatura, dlgComponente });
+const hojas = crearHojas({ abrir, cerrar, aviso, render, esc, num, plural, seleccionar: (id) => { if (!ancha()) cambiarVista('2d'); seleccionar(id); }, $, $$, descargar, nombreArchivo, miniatura, dlgComponente, bloqueado: () => ui.bloqueado });
 
 // ---------------------------------------------------------------------------
 // Eventos
@@ -927,7 +954,7 @@ $('#hoja').addEventListener('click', (e) => {
   const b = e.target.closest('[data-acc]');
   if (b) accionHoja(b.dataset.acc, b);
 });
-$('#hoja').addEventListener('toggle', (e) => { if (e.target.matches && e.target.matches('details.mas')) ui.hojaAbierta = e.target.open; }, true);
+$('#hoja').addEventListener('toggle', (e) => { if (e.target.matches && e.target.matches('details.mas')) { ui.hojaAbierta = e.target.open; requestAnimationFrame(asegurarVisible); } }, true);
 $('#hoja').addEventListener('change', (e) => {
   const id = ui.sel;
   if (!id || ui.bloqueado) return;
@@ -935,14 +962,19 @@ $('#hoja').addEventListener('change', (e) => {
   const sinRehacer = { motivo: 'campo' };
   if (e.target.id === 'hEtiqueta') S.cambiar((t) => { t.items[id].etiqueta = e.target.value.trim(); }, sinRehacer);
   if (e.target.id === 'hSep') S.cambiar((t) => { t.items[id].sep = Math.max(0, num(e.target.value, 0)); }, sinRehacer);
-  if (e.target.id === 'hComp') { S.cambiar((t) => { t.items[id].comp = e.target.value; }); }
+  if (e.target.id === 'hComp') {
+    S.cambiar((t) => { t.items[id].comp = e.target.value; });
+    const lista = $('#hComp');
+    if (lista) lista.focus({ preventScroll: true }); // la ficha se rehízo: el foco vuelve a la lista
+  }
 });
 
 $('#vfoto').addEventListener('click', (e) => {
   const b = e.target.closest('[data-acc]');
-  if (!b) return;
+  if (!b || !puedeEditar()) return;
   if (b.dataset.acc === 'foto-cambiar') elegirFoto();
   if (b.dataset.acc === 'foto-quitar') {
+    if (S.tablero().fotoPropia && !window.confirm('¿Quitar la foto de este tablero? No se puede deshacer.')) return;
     const vieja = S.tablero().foto;
     S.cambiar((t) => { t.foto = null; t.fotoPropia = false; }, { deshacer: false });
     S.borrarFoto(vieja);
@@ -1006,12 +1038,48 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 
 S.alCambiar((motivo) => {
   if (motivo === 'error-guardado') { aviso('No hay lugar para guardar en este dispositivo. Borrá tableros o fotos viejas.', 'pasado'); return; }
-  render({ hoja: motivo !== 'campo' });
+  if (motivo === 'campo') { renderTrasElToque(); return; }
+  render();
 });
+
+// El cambio de un campo llega entre que se aprieta y se suelta el dedo sobre otra cosa: si se redibuja en ese
+// momento, ese toque se pierde. Se espera a que termine (o un instante) para redibujar.
+let campoPendiente = null;
+function renderTrasElToque() {
+  if (campoPendiente) return;
+  const ir = () => {
+    if (!campoPendiente) return;
+    clearTimeout(campoPendiente.t);
+    document.removeEventListener('click', campoPendiente.alClick, true);
+    campoPendiente = null;
+    render({ hoja: false });
+  };
+  const alClick = () => setTimeout(ir, 0);
+  campoPendiente = { alClick, t: setTimeout(ir, 400) };
+  document.addEventListener('click', alClick, true);
+}
 
 // ---------------------------------------------------------------------------
 // Arranque
 // ---------------------------------------------------------------------------
+const avisoRecibido = (base, distintos) => (distintos ? `${base} Trae ${plural(distintos, 'componente con medidas distintas a las tuyas: se agregó aparte', 'componentes con medidas distintas a las tuyas: se agregaron aparte')} en el catálogo, como “(recibido)”.` : base);
+
+/** Abre el tablero que viene en la dirección (#z= o #j=), al arrancar o si se pega el enlace con la app ya abierta. */
+async function abrirEnlace() {
+  if (!/^#[zj]=/.test(location.hash)) return;
+  try {
+    const p = await S.leerEnlace(location.hash);
+    history.replaceState(null, '', location.pathname + location.search);
+    if (p) {
+      cerrar();
+      ui.sel = null;
+      ui.zoom = 1;
+      const distintos = S.importarPaquete(p);
+      aviso(avisoRecibido('Se abrió el tablero compartido.', distintos), 'ok');
+    }
+  } catch (e) { aviso('El enlace no se pudo abrir.', 'pasado'); }
+}
+
 async function iniciar() {
   S.cargar();
   S.estado.ajustes.modo = 'equilibrado';
@@ -1020,13 +1088,8 @@ async function iniciar() {
   document.body.dataset.vista = ui.vista;
   render();
   S.precargarFotos();
-  if (/^#[zj]=/.test(location.hash)) {
-    try {
-      const p = await S.leerEnlace(location.hash);
-      history.replaceState(null, '', location.pathname + location.search);
-      if (p) { S.importarPaquete(p); aviso('Se abrió el tablero compartido.', 'ok'); }
-    } catch (e) { aviso('El enlace no se pudo abrir.', 'pasado'); }
-  }
+  await abrirEnlace();
+  window.addEventListener('hashchange', abrirEnlace);
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }

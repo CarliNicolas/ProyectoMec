@@ -30,6 +30,7 @@ button.primario:hover { background: #0958d4; }
 button.peligro { color: var(--pasado); border-color: #f1b5b5; }
 button.chico { min-height: 36px; padding: 6px 10px; font-size: 14px; }
 button.plano { border-color: transparent; background: transparent; }
+textarea { resize: vertical; font-family: inherit; }
 input[type="text"], input[type="number"], select, textarea {
   width: 100%; border: 1px solid #b9c2cc; border-radius: 10px; padding: 10px 12px; min-height: 44px; background: #fff;
 }
@@ -112,6 +113,14 @@ body.bloqueado #plano .ap { cursor: default; touch-action: pan-x pan-y; }
 
 /* ---------- estado por riel ---------- */
 .rieles { padding: 10px 12px 90px; display: grid; gap: 8px; }
+/* con la ficha abierta se deja lugar para poder subir el último riel por encima de ella,
+   y en pantallas angostas la barra de herramientas deja de quedar pegada arriba para no tapar el plano */
+@media (max-width: 999px) {
+  body.con-ficha .herramientas { position: static; }
+  .hoja { max-height: 58dvh; }
+}
+@media (max-width: 999px) and (max-height: 520px) { .hoja { max-height: 50dvh; } }
+body.con-ficha .rieles { padding-bottom: 66dvh; }
 .riel-fila { background: var(--panel); border: 1px solid var(--linea); border-left: 6px solid var(--ok); border-radius: 10px; padding: 8px 10px; }
 .riel-fila.justo { border-left-color: var(--justo); }
 .riel-fila.pasado { border-left-color: var(--pasado); }
@@ -129,6 +138,7 @@ body.bloqueado #plano .ap { cursor: default; touch-action: pan-x pan-y; }
 .riel-fila.justo .msg { color: #8a5d00; } .riel-fila.pasado .msg { color: var(--pasado); }
 .avisos { display: grid; gap: 6px; grid-column: 1 / -1; }
 .avisos .amarillo { background: #fff6da; border-color: #ecd28a; color: #6b4a00; }
+.nota-taller { white-space: pre-wrap; background: #eef4ff; border: 1px solid #c9dafc; border-radius: 10px; padding: 8px 10px; font-size: 14px; color: #1b2f55; grid-column: 1 / -1; margin: 0 0 6px; }
 .ocupacion { font-size: 14px; color: var(--suave); padding: 2px 2px 0; }
 .ocupacion b { color: var(--tinta); }
 .avisos div { background: #fdeeee; border: 1px solid #f1b5b5; color: #8f1d1d; border-radius: 10px; padding: 8px 10px; font-size: 14px; }
@@ -209,6 +219,7 @@ table.bom td.num, table.bom th.num { text-align: right; white-space: nowrap; }
   .pestanas button[data-vista="2d"] { display: none; }
   .hoja { left: 12px; right: auto; bottom: 12px; width: min(460px, 46vw); border-radius: 16px; }
   .rieles { padding-bottom: 24px; }
+  body.con-ficha .rieles { padding-bottom: 46vh; }
   .resumen { padding: 10px 16px; }
 }
 @media (min-width: 1250px) {
@@ -240,11 +251,12 @@ ol.barras { margin: 4px 0 0; padding-left: 22px; font-size: 14px; color: var(--s
 .regla i { display: block; width: 100mm; flex-shrink: 0; height: 3mm; border-inline: 0.3mm solid #000; background: linear-gradient(#000, #000) center / 100% 0.3mm no-repeat; }
 .tira-titulo { font-size: 3.2mm; margin: 3mm 0 1mm; color: #333; }
 .tira { display: flex; width: max-content; break-inside: avoid; }
-.cartel { border: 0.25mm solid #000; margin-left: -0.25mm; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; line-height: 1.05; text-align: center; flex-shrink: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.cartel:first-child { margin-left: 0; }
+.cartel { border: 0.25mm solid #000; border-left-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; line-height: 1.05; text-align: center; flex-shrink: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.cartel:first-child { border-left-width: 0.25mm; }
 .cartel b { white-space: nowrap; }
 .cartel span { white-space: nowrap; color: #222; }
 .cartel.vacio { border-style: dashed; border-color: #999; }
+.cartel.vacio + .cartel { border-left-width: 0.25mm; }
 .armar-cab { margin-bottom: 6px; }
 .armar-cab .barra-ocup { height: 10px; border-radius: 6px; background: #e4e8ed; margin: 6px 0; overflow: hidden; }
 .armar-cab .barra-ocup i { display: block; height: 100%; background: var(--ok); }

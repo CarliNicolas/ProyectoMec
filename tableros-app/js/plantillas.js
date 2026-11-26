@@ -224,5 +224,6 @@ export function clonarTablero(origen, nombre) {
   const t = JSON.parse(JSON.stringify(origen));
   t.id = nuevoId('t');
   t.nombre = nombre || `${origen.nombre} (copia)`;
+  t.armado = {}; // la copia es un tablero nuevo: todavía no se montó nada
   return t;
 }

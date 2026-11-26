@@ -11,8 +11,11 @@ export const fmt = (mm) => {
 
 const COMP_DESCONOCIDO = { id: '?', nombre: 'Componente desconocido', marca: '', ref: '', ancho: 18, alto: 85, prof: 70, grupo: 'otros', color: '#bbbbbb', medida: 'estimada', desconocido: true };
 
+const propia = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+
 export function compDe(cat, id) {
-  return cat[id] || { ...COMP_DESCONOCIDO, id };
+  // solo claves propias: un id como "constructor" no tiene que devolver algo heredado
+  return (typeof id === 'string' && propia(cat, id) && cat[id]) || { ...COMP_DESCONOCIDO, id };
 }
 
 // ---------------------------------------------------------------------------
@@ -161,7 +164,13 @@ export function evaluar(t, cat) {
   const sinUbicar = t.sinUbicar.map((id) => {
     const it = t.items[id];
     const comp = compDe(cat, it ? it.comp : '?');
-    return { id, it, comp, entra: libres.some((l) => comp.ancho <= l + EPS) };
+    return { id, it, comp, entra: false };
+  });
+  // Se reparten en el lugar libre de mayor a menor: dos aparatos no pueden contar el mismo hueco.
+  const resto = [...libres];
+  [...sinUbicar].sort((a, b) => b.comp.ancho - a.comp.ancho).forEach((e) => {
+    const k = resto.findIndex((l) => e.comp.ancho <= l + EPS);
+    if (k >= 0) { resto[k] -= e.comp.ancho; e.entra = true; }
   });
   // aparatos sin ubicar que no caben en el lugar libre de ningún riel
   const afuera = sinUbicar.filter((e) => !e.entra).length;
@@ -251,7 +260,7 @@ function repartir(ids, anchos, grupos, comps, caps, umbrales) {
         if (ant[0] === Infinity) continue;
         const carga = pre[i] - pre[j];
         const pasa = Math.max(0, carga - cap);
-        const justo = carga > 0 && pasa === 0 && cap - carga < umbrales[k - 1] ? 1 : 0;
+        const justo = carga > 0 && pasa <= EPS && cap - carga < umbrales[k - 1] - EPS ? 1 : 0;
         const lleno = cap > 0 ? carga / cap : carga > 0 ? 9 : 0;
         const c = [ant[0] + pasa, ant[1] + justo, ant[2] + (j < i ? corte(j) : 0), Math.max(ant[3], lleno), ant[4] + lleno * lleno];
         if (menor(c, mejor[k][i])) {
@@ -288,7 +297,13 @@ function llenar(ids, anchos, grupos, caps) {
       while (f < ids.length && grupos[f] === grupos[i]) { anchoGrupo += anchos[f]; f += 1; }
       if (porFuncion && k < R - 1 && usado > 0 && usado + anchoGrupo > caps[k] + EPS && anchoGrupo <= caps[k + 1] + EPS) { k += 1; usado = 0; }
       for (let j = i; j < f; j += 1) {
-        if (k < R - 1 && usado + anchos[j] > caps[k] + EPS) { k += 1; usado = 0; }
+        if (k < R - 1 && usado + anchos[j] > caps[k] + EPS) {
+          // pasa al primer riel siguiente donde el aparato entra; si no entra en ninguno, al que sigue
+          let n = k + 1;
+          for (let q = k + 1; q < R; q += 1) if (anchos[j] <= caps[q] + EPS) { n = q; break; }
+          k = n;
+          usado = 0;
+        }
         filas[k].push(ids[j]);
         usado += anchos[j];
       }
@@ -301,23 +316,73 @@ function llenar(ids, anchos, grupos, caps) {
   return sePasa(a) <= sePasa(b) + EPS ? a : b;
 }
 
+/** Busca, con vuelta atrás y un tope de intentos, un reparto donde entren todos. Devuelve el riel de cada uno o null. */
+function empacarTodo(orden, anchos, caps, tope = 60000) {
+  const R = caps.length;
+  const resto = [...caps];
+  const riel = new Array(orden.length).fill(-1);
+  let intentos = 0;
+  const ir = (p) => {
+    if (p === orden.length) return true;
+    intentos += 1;
+    if (intentos > tope) return false;
+    const a = anchos[orden[p]];
+    const vistos = new Set();
+    for (let r = 0; r < R; r += 1) {
+      if (a > resto[r] + EPS) continue;
+      const clave = Math.round(resto[r] * 100);
+      if (vistos.has(clave)) continue; // dos rieles con el mismo lugar libre dan lo mismo
+      vistos.add(clave);
+      resto[r] -= a;
+      riel[p] = r;
+      if (ir(p + 1)) return true;
+      resto[r] += a;
+      riel[p] = -1;
+      if (intentos > tope) return false;
+    }
+    return false;
+  };
+  return ir(0) ? riel : null;
+}
+
 function aprovechar(ids, anchos, comps, caps) {
-  // "First fit decreasing": los más anchos primero, cada uno en el primer riel donde entra.
+  // Los más anchos primero. Se prueba cada uno en el primer riel donde entra y, si así queda alguno afuera,
+  // en el riel donde menos lugar sobra y con una búsqueda con vuelta atrás; se elige lo que deja menos afuera.
   const orden = ids.map((id, i) => i).sort((a, b) => anchos[b] - anchos[a] || comps[a].localeCompare(comps[b]) || a - b);
   const R = caps.length;
-  const filas = new Array(R).fill(null).map(() => []);
-  const usado = new Array(R).fill(0);
-  const sobran = [];
-  orden.forEach((i) => {
-    let k = -1;
-    for (let r = 0; r < R; r += 1) if (usado[r] + anchos[i] <= caps[r] + EPS) { k = r; break; }
-    if (k < 0) { sobran.push(i); return; }
-    filas[k].push(i);
-    usado[k] += anchos[i];
-  });
+  const intentar = (mejorAjuste) => {
+    const filas = new Array(R).fill(null).map(() => []);
+    const usado = new Array(R).fill(0);
+    const sobran = [];
+    orden.forEach((i) => {
+      let k = -1;
+      for (let r = 0; r < R; r += 1) {
+        if (usado[r] + anchos[i] > caps[r] + EPS) continue;
+        if (!mejorAjuste) { k = r; break; }
+        if (k < 0 || caps[r] - usado[r] < caps[k] - usado[k]) k = r;
+      }
+      if (k < 0) { sobran.push(i); return; }
+      filas[k].push(i);
+      usado[k] += anchos[i];
+    });
+    return { filas, sobran, afuera: sobran.reduce((t, i) => t + anchos[i], 0) };
+  };
+  let mejor = intentar(false);
+  if (mejor.sobran.length) {
+    const otro = intentar(true);
+    if (otro.afuera < mejor.afuera - EPS) mejor = otro;
+  }
+  if (mejor.sobran.length && orden.reduce((t, i) => t + anchos[i], 0) <= caps.reduce((t, c) => t + c, 0) + EPS) {
+    const riel = empacarTodo(orden, anchos, caps);
+    if (riel) {
+      const filas = new Array(R).fill(null).map(() => []);
+      orden.forEach((i, p) => filas[riel[p]].push(i));
+      mejor = { filas, sobran: [], afuera: 0 };
+    }
+  }
   // dentro de cada riel, juntar los iguales
-  const res = filas.map((f) => f.sort((a, b) => comps[a].localeCompare(comps[b]) || a - b).map((i) => ids[i]));
-  return { filas: res, sobran: sobran.map((i) => ids[i]) };
+  const res = mejor.filas.map((f) => f.sort((a, b) => comps[a].localeCompare(comps[b]) || a - b).map((i) => ids[i]));
+  return { filas: res, sobran: mejor.sobran.map((i) => ids[i]) };
 }
 
 /**
@@ -334,20 +399,29 @@ export function acomodar(t, cat, modo = 'equilibrado') {
   const caps = geo.rieles.map((r) => r.largo);
 
   const R = caps.length;
-  const todos = ids.map((_, i) => i);
+  // Los aparatos fijados por el usuario no cambian de riel: se descuenta el lugar que ocupan y se acomoda el resto.
+  const rielDe = new Map();
+  t.rieles.forEach((r, k) => r.items.forEach((id) => rielDe.set(id, k)));
+  const fijoEn = ids.map((id) => (t.items[id].fijo && rielDe.has(id) ? rielDe.get(id) : -1));
+  const ocupFijo = new Array(R).fill(0);
+  ids.forEach((id, i) => { if (fijoEn[i] >= 0) ocupFijo[fijoEn[i]] += anchos[i] + (t.items[id].sep || 0); });
+  const fijados = fijoEn.filter((k) => k >= 0).length;
+  const libres = caps.map((c, k) => Math.max(0, c - ocupFijo[k])); // lugar que queda para los que sí se mueven
+  const umbrales = caps.map((c) => umbralDe(t, c));
+  const todos = ids.map((_, i) => i).filter((i) => fijoEn[i] < 0);
   const de = (arr, idx) => idx.map((i) => arr[i]);
-  const armar = (idx, capsX) => {
+  const armar = (idx, capsX, umbX) => {
     if (modo === 'compacto') return { filas: llenar(de(ids, idx), de(anchos, idx), de(grupos, idx), capsX), sobran: [] };
     if (modo === 'aprovechar') return aprovechar(de(ids, idx), de(anchos, idx), de(comps, idx), capsX);
-    return { filas: repartir(de(ids, idx), de(anchos, idx), de(grupos, idx), de(comps, idx), capsX, capsX.map((c) => umbralDe(t, c))), sobran: [] };
+    return { filas: repartir(de(ids, idx), de(anchos, idx), de(grupos, idx), de(comps, idx), capsX, umbX), sobran: [] };
   };
   const anchoDe = new Map(ids.map((id, i) => [id, anchos[i]]));
   // mm que no entran: lo que se pasa de cada riel más lo que quedó sin ubicar
-  const falta = (r) => r.filas.reduce((s, f, k) => s + Math.max(0, f.reduce((a, id) => a + anchoDe.get(id), 0) - caps[k]), 0)
+  const falta = (r) => r.filas.reduce((s, f, k) => s + Math.max(0, f.reduce((a, id) => a + anchoDe.get(id), 0) - libres[k]), 0)
     + r.sobran.reduce((a, id) => a + anchoDe.get(id), 0);
 
   // Una preselección puede fijar en qué riel va cada función (t.rielDeGrupo). Se respeta si así entra todo.
-  const fijo = () => {
+  const porMapa = () => {
     const mapa = t.rielDeGrupo;
     if (!mapa || modo === 'aprovechar') return null;
     const filas = new Array(R).fill(null).map(() => []);
@@ -358,34 +432,44 @@ export function acomodar(t, cat, modo = 'equilibrado') {
     }
     return { filas, sobran: [] };
   };
-  const porFuncion = fijo();
+  const porFuncion = porMapa();
 
   // Si el último riel está fuera del marco de cablecanal (riel de bornera), se reserva para los bornes...
   const esBorne = grupos.map((g) => g === 'bornera');
   const dedicado = R > 1 && geo.rieles[R - 1].fueraDelMarco && esBorne.some(Boolean);
   let res;
   if (dedicado) {
-    res = armar(todos.filter((i) => !esBorne[i]), caps.slice(0, R - 1));
+    res = armar(todos.filter((i) => !esBorne[i]), libres.slice(0, R - 1), umbrales.slice(0, R - 1));
     res.filas.push(de(ids, todos.filter((i) => esBorne[i])));
     if (res.sobran.length) {
       let usado = res.filas[R - 1].reduce((a, id) => a + anchoDe.get(id), 0);
       res.sobran = res.sobran.filter((id) => {
-        if (usado + anchoDe.get(id) <= caps[R - 1] + EPS) { res.filas[R - 1].push(id); usado += anchoDe.get(id); return false; }
+        if (usado + anchoDe.get(id) <= libres[R - 1] + EPS) { res.filas[R - 1].push(id); usado += anchoDe.get(id); return false; }
         return true;
       });
     }
     // ...pero si así algo no entra, se usa también el lugar libre de ese riel (o de los otros para los bornes).
     if (falta(res) > EPS) {
-      const libre = armar(todos, caps);
+      const libre = armar(todos, libres, umbrales);
       if (falta(libre) < falta(res) - EPS) res = libre;
     }
   } else {
-    res = armar(todos, caps);
+    res = armar(todos, libres, umbrales);
   }
   if (porFuncion && falta(porFuncion) <= falta(res) + EPS) res = porFuncion;
 
-  ids.forEach((id) => { t.items[id].sep = 0; });
-  t.rieles.forEach((r, i) => { r.items = res.filas[i] || []; });
+  // Los fijados vuelven a su riel, intercalados con el resto en el orden del acomodado.
+  const ordenDe = new Map(ids.map((id, i) => [id, i]));
+  const compDeId = new Map(ids.map((id, i) => [id, comps[i]]));
+  const comparar = modo === 'aprovechar'
+    ? (a, b) => compDeId.get(a).localeCompare(compDeId.get(b)) || ordenDe.get(a) - ordenDe.get(b)
+    : (a, b) => ordenDe.get(a) - ordenDe.get(b);
+  ids.forEach((id, i) => { if (fijoEn[i] < 0) t.items[id].sep = 0; });
+  t.rieles.forEach((r, k) => {
+    const fila = res.filas[k] || [];
+    const fijos = ids.filter((id, i) => fijoEn[i] === k);
+    r.items = fijos.length ? [...fila, ...fijos].sort(comparar) : fila;
+  });
   t.sinUbicar = res.sobran;
 
   const ev = evaluar(t, cat);
@@ -406,7 +490,8 @@ export function acomodar(t, cat, modo = 'equilibrado') {
   } else {
     partes.push('Entra todo con lugar.');
   }
-  return { ok: noEntran === 0, texto: partes.join(' '), total, capTotal, noEntran, justos: ev.cuenta.justo, estado: ev.estado };
+  if (fijados > 0) partes.push(`${fijados === 1 ? 'El aparato fijado quedó' : `Los ${fijados} aparatos fijados quedaron`} en su riel.`);
+  return { ok: noEntran === 0, texto: partes.join(' '), total, capTotal, noEntran, justos: ev.cuenta.justo, estado: ev.estado, fijados };
 }
 
 // ---------------------------------------------------------------------------

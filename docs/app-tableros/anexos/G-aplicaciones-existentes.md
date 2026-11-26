@@ -8,9 +8,9 @@ Relevamiento de los programas que ya existen para armar tableros, hecho para cop
 
 | Estado en Tableros MEC | Funciones |
 |---|---:|
-| Ya está en la app | 46 |
+| Ya está en la app | 48 |
 | Está en parte | 24 |
-| Pendiente | 42 |
+| Pendiente | 40 |
 | **Total** | **112** |
 
 Varias funciones aparecen repetidas entre familias (reserva, lista de corte, etiquetas, armado guiado): que cuatro tipos de programa distintos las tengan es la mejor señal de que valen la pena.
@@ -24,6 +24,7 @@ Tomado de estos programas y adaptado al taller.
 | 1 | Reserva de espacio configurable (y reserva aparte para bornes) | Legrand XL PRO3; hagercad; ABB StriePlan | Menú → Medidas del tablero → “Lugar libre a dejar en cada riel (%)”. Zona rayada en el plano y amarillo cuando se invade. Falta la reserva aparte para la bornera. |
 | 2 | Propuesta automatica de gabinete: solo los que entran | hagercad; Legrand XL PRO3; Siemens SIMARIS project; Schrack Design; Gewiss PBT-Q; Schneider eDesign | Menú → ¿Qué placa necesito?: calcula la placa más chica con un riel menos, los mismos y uno más. No elige de un catálogo de gabinetes comerciales. |
 | 3 | Banco de trabajo para lo que no esta colocado | Legrand XL PRO3; Schneider eDesign | Bandeja “Sin ubicar” debajo del plano; en rojo lo que no entra en ningún riel. |
+| 4 | Saltos de fila que el acomodado respeta | Legrand XL PRO3 | “📌 Fijar” en la ficha de cada aparato: al acomodar no cambia de riel y el resto se reparte alrededor. Las preselecciones además fijan qué función va en cada riel. |
 | 5 | Tiras de etiquetas por riel a tamano real | Legrand XL PRO3; Hager Ready; Schneider eDesign | Menú → Carteles y etiquetas: una tira por riel a tamaño real, con regla de control de 100 mm. |
 | 6 | Largo de riel calculado y lista de corte | Weidmuller Configurator (WMC); ABB StriePlan | Menú → Lista de corte: riel y cablecanal, con reparto en barras de 2 m y sobrantes. |
 | 9 | Plantillas y macros propios | Schrack Design; ABB DOC (e-Design) | Menú → Guardar como preselección; aparece en “Tablero nuevo”. |
@@ -40,7 +41,7 @@ Tomado de estos programas y adaptado al taller.
 | 34 | Colisión en vivo que marca a los dos involucrados | EPLAN Pro Panel, WSCAD Cabinet Engineering, SEE Electrical 3D Panel+, Zuken E3.panel | Rojo si se pasa del riel, choca con el cablecanal o no deja cerrar la puerta; con el motivo escrito. |
 | 37 | Encajar rieles y cablecanales contra el vecino | EPLAN Pro Panel | Rieles y cablecanales se calculan solos con el ancho y alto de la placa. |
 | 38 | Largo de riel calculado según lo colocado | Weidmüller Configurator online, Phoenix Contact clipx ENGINEER | Largo de cada riel automático según la placa, o cargado a mano. |
-| 39 | Lista de corte de riel y cablecanal | Zuken E3.panel, SEE Electrical 3D Panel+, EPLAN Pro Panel (hacia el centro de corte Rittal Secarex); falta en AutoCAD Electrical | Menú → Lista de corte. |
+| 39 | Lista de corte de riel y cablecanal | Zuken E3.panel, SEE Electrical 3D Panel+, EPLAN Pro Panel (hacia el centro de corte Rittal Secarex); falta en AutoCAD Electrical | Menú → Lista de corte: los verticales van de una pieza y los horizontales del medio se cortan entre ellos. |
 | 41 | Cotas automáticas regenerables | EPLAN Pro Panel, SkyCAD (cotas de layout) | Botón “Medidas”: ancho y alto de placa, y eje, inicio y largo de cada riel. |
 | 42 | Leyenda del tablero con números de posición | EPLAN (leyenda de gabinete), AutoCAD Electrical (globos y lista de panel) | Referencias para la puerta, con riel y posición de cada aparato. |
 | 47 | Reserva de espacio configurable | Schneider Electric (EcoSet), Legrand XL PRO | Reserva en % por tablero. |
@@ -62,6 +63,7 @@ Tomado de estos programas y adaptado al taller.
 | 90 | Bornera como bloque con ancho calculado | Stromlaufplan.de | “Bornes de una unidad” y “Bornes comunes” son bloques con su ancho. |
 | 93 | Modo armado guiado con estado verde y rojo | EPLAN Smart Mounting; clipx ENGINEER assemble; WSCAD Cabinet AR | Pestaña “Armar”, con lo que no entra marcado en rojo. |
 | 102 | Exportar los textos de marcado para la rotuladora | TermiGrid; WAGO Smart Designer | Carteles → “Planilla para la rotuladora”. |
+| 105 | Notas del taller sobre el plano | EPLAN eVIEW Free; EPLAN Smart Mounting; WSCAD Cabinet AR | Menú → Medidas del tablero → “Notas del taller”. Se ven bajo el plano, en la pestaña Armar y en la carpeta impresa. |
 | 106 | Marca de dato a verificar que también se imprime | loadcenterlabels | “medir” en cada componente estimado y “medidas estimadas” en el encabezado de cada hoja. |
 | 107 | Insertar empujando e intercambiar al soltar | DIN Rail Planner; Stromlaufplan.de (pedido de usuarios) | Al soltar un aparato entre otros dos, los demás se corren. |
 | 108 | Tocar para colocar en el primer lugar libre | ElectroCraft; Verteilerplaner (Sandmann4951) | “＋” en el catálogo lo pone en el primer riel donde entra, junto a los de su función. |
@@ -74,7 +76,6 @@ Hay una versión simple; se indica qué falta.
 
 | N.º | Función | La tienen | Qué hay y qué falta |
 |---:|---|---|---|
-| 4 | Saltos de fila que el acomodado respeta | Legrand XL PRO3 | Las preselecciones fijan qué función va en cada riel y el acomodado lo respeta. Falta poder marcar un salto a mano. |
 | 7 | Lista de materiales con precios, mano de obra y presupuesto | Legrand XL PRO3; Schneider eDesign; Rittal RiPanel; hagercad; Siemens SIMARIS configuration; ABB StriePlan | Precio por componente en el catálogo, total por tablero y por serie. Falta mano de obra y presupuesto para el cliente. |
 | 8 | Proyecto con varios tableros, duplicar y lista consolidada | Legrand XL PRO3; Hager Ready; Schrack Design | Mis tableros, Copiar y “Tableros iguales a armar” (multiplica materiales y cortes). Falta la lista consolidada de tableros distintos. |
 | 11 | Plano acotado y exportacion DXF | hagercad; Siemens SIMARIS configuration; Rittal RiPanel | Botón “Medidas” en el plano y hoja “Plano con medidas” en la carpeta. Falta exportar DXF. |
@@ -90,6 +91,7 @@ Hay una versión simple; se indica qué falta.
 | 66 | Numeración consecutiva con prefijo, sufijo, paso y sentido | Weidmüller M-Print PRO (conectado a WMC) | Menú → Renumerar etiquetas. Falta elegir prefijo, paso y sentido. |
 | 68 | Control de largo de texto y vista real de la etiqueta | WAGO Smart Script | La letra se achica sola para entrar. Falta avisar cuáles quedan ilegibles. |
 | 77 | Pedido directo desde la configuración | WAGO Smart Designer, Weidmüller Configurator (WMC), Phoenix Contact PROJECT complete | El pedido sale como texto para mandar; no hay envío directo a un proveedor. |
+| 80 | Accesorios no eléctricos en la lista: carteles, cubiertas, tapones | Phoenix Contact clipx ENGINEER | El pedido, la lista de materiales y la pestaña Componentes incluyen las barras de riel DIN y de cablecanal. Faltan carteles, tapas y tapones como renglones. |
 | 82 | Ancho y potencia disipada sumados por riel | Siemens TIA Selection Tool | Ancho ocupado y libre por riel. Falta la potencia disipada. |
 | 85 | Leyenda para la puerta en tamaños elegibles | Hager Ready; Breaker Box: Panel Directory; loadcenterlabels; Panel Legend 2 | Hay una hoja de referencias; falta elegir el tamaño. |
 | 89 | Plano con medidas exactas y posiciones de perforado | EPLAN Smart Mounting | Plano con medidas y eje de cada riel. Faltan las posiciones de los agujeros. |
@@ -138,10 +140,8 @@ Ordenado por valor para el taller y después por esfuerzo. El valor y el esfuerz
 | 58 | Usar el espacio libre del riel para completar accesorios | Weidmüller Configurator (WMC) | medio | bajo | Cuando 'Arreglar todo' agregue topes o tapas, usar primero los milímetros libres del riel y solo si no alcanza avisar cuántos faltan, con el mismo mensaje que ya usamos. |
 | 64 | Series preferidas para las sugerencias | Weidmüller Configurator (WMC) | medio | bajo | En el catálogo, marcar un componente como 'preferido' por función; las preselecciones por máquina y el cambio por equivalente usan primero los preferidos. |
 | 74 | Códigos de artículo propios por lista de mapeo | Phoenix Contact clipx ENGINEER | medio | bajo | Importar una planilla 'referencia de fábrica → código interno, proveedor y precio' y mostrar esas columnas en la lista de materiales; es la base para cotizar. |
-| 80 | Accesorios no eléctricos en la lista: carteles, cubiertas, tapones | Phoenix Contact clipx ENGINEER | medio | bajo | Categoría 'accesorios' en el catálogo (cartel de riesgo eléctrico, cubrebornes, punteras, precintos, tornillos) con cantidad fija o calculada por regla, sumada a la lista de materiales. |
 | 91 | Topes, tapas finales y puentes agregados solos a la lista | TermiGrid; WAGO Smart Designer | medio | bajo | Reglas simples en la lista de materiales: dos topes por grupo de aparatos, una tapa final por bornera, tapa y soportes por tramo de cablecanal, con cantidades editables. |
 | 98 | Celdas de etiqueta combinadas, divididas y vacías | Electrical Panel Label Generator; TermiGrid | medio | bajo | En la vista de etiquetas, permitir unir las celdas de componentes vecinos bajo un título común y dejar en blanco, con su ancho real, los huecos y la reserva. |
-| 105 | Notas del taller sobre el plano | EPLAN eVIEW Free; EPLAN Smart Mounting; WSCAD Cabinet AR | medio | bajo | Una nota por componente y por tablero, visible como marca en el plano, que viaje dentro del enlace compartido. |
 | 28 | Alta de aparatos por voz | Hager Ready | bajo | medio | Boton de microfono que entiende frases como 'tres contactores de nueve amperes' y los agrega; el reconocimiento de voz del navegador suele necesitar conexion. |
 | 54 | Peso total del tablero | EPLAN Pro Panel | bajo | bajo | Campo 'peso' opcional en el catálogo y total en el encabezado de la lista de materiales, con aviso de cuántos componentes no lo tienen cargado. |
 | 73 | Chequeo de homologaciones de los artículos | Phoenix Contact clipx ENGINEER | bajo | bajo | Campo opcional de certificaciones en el catálogo y un aviso en la revisión cuando un componente no tiene la que se marcó como requerida para ese tablero. |
@@ -176,12 +176,12 @@ Ordenado por valor para el taller y después por esfuerzo. El valor y el esfuerz
 - *En Tableros MEC:* Bandeja “Sin ubicar” debajo del plano; en rojo lo que no entra en ningún riel.
 - *Fuente:* https://productinfo.se.com/edesignbuildingpanel/edesign-building-panel/English/DOCA0184EN-07.pdf
 
-**4. Saltos de fila que el acomodado respeta** · está en parte
+**4. Saltos de fila que el acomodado respeta** · ya está en la app
 
 - *Quién la tiene:* Legrand XL PRO3
 - *Cómo funciona:* Se inserta una marca de corte delante de un aparato: ese aparato y todos los que siguen pasan a la fila siguiente (o al gabinete siguiente). Las marcas se ven completas en la vista previa e influyen en la eleccion del gabinete.
 - *Para qué sirve:* Fijar a mano donde empieza cada grupo sin renunciar al acomodado automatico.
-- *En Tableros MEC:* Las preselecciones fijan qué función va en cada riel y el acomodado lo respeta. Falta poder marcar un salto a mano.
+- *En Tableros MEC:* “📌 Fijar” en la ficha de cada aparato: al acomodar no cambia de riel y el resto se reparte alrededor. Las preselecciones además fijan qué función va en cada riel.
 - *Fuente:* https://docplayer.net/26266837-Xl-pro3-user-manual-distribution-panel-design-software-products-and-systems-for-electrical-and-digital-building-infrastructures.html
 
 **5. Tiras de etiquetas por riel a tamano real** · ya está en la app
@@ -463,7 +463,7 @@ Ordenado por valor para el taller y después por esfuerzo. El valor y el esfuerz
 - *Quién la tiene:* Zuken E3.panel, SEE Electrical 3D Panel+, EPLAN Pro Panel (hacia el centro de corte Rittal Secarex); falta en AutoCAD Electrical
 - *Cómo funciona:* E3.panel incluye una 'cut list' entre sus salidas de fabricación, y SEE y EPLAN mandan los largos de canales y rieles a centros de corte. En AutoCAD Electrical esto falta y es un pedido repetido en su foro: el informe cuenta piezas en vez de largos, aunque el programa sí maneja un largo estándar de barra (RAILLENSTD) y un largo mínimo de retazo (RAILLENMIN).
 - *Para qué sirve:* Cortar todo el riel y el cablecanal de una vez sin medir sobre el plano, y saber cuántas barras comprar.
-- *En Tableros MEC:* Menú → Lista de corte.
+- *En Tableros MEC:* Menú → Lista de corte: los verticales van de una pieza y los horizontales del medio se cortan entre ellos.
 - *Fuente:* https://digital.zuken.com/rs/707-ZQM-176/images/DS-E3-panel-EN.pdf
 
 **40. Plantilla de perforado 1:1 y agujeros automáticos** · pendiente
@@ -788,12 +788,12 @@ Ordenado por valor para el taller y después por esfuerzo. El valor y el esfuerz
 - *Cómo adaptarla:* Tabla de gabinetes estándar del mercado local; al terminar el acomodado la app propone el más chico donde entra la placa con la profundidad y la reserva pedidas, y permite ubicar prensacables con plantilla de perforado.
 - *Fuente:* https://www.weidmueller.com/int/service/consulting_and_digital_engineering/weidmueller_configurator/weidmueller_configurator_wmc.jsp
 
-**80. Accesorios no eléctricos en la lista: carteles, cubiertas, tapones** · pendiente
+**80. Accesorios no eléctricos en la lista: carteles, cubiertas, tapones** · está en parte
 
 - *Quién la tiene:* Phoenix Contact clipx ENGINEER
 - *Cómo funciona:* La versión 2.5 suma como accesorios planificables las etiquetas de advertencia y cubiertas, los tapones de relleno y las fundas aislantes; la 2.1 había sumado las fundas de protección contra dobleces.
 - *Para qué sirve:* Que la lista de materiales incluya también lo que no va sobre el riel pero hay que comprar.
-- *Cómo adaptarla:* Categoría 'accesorios' en el catálogo (cartel de riesgo eléctrico, cubrebornes, punteras, precintos, tornillos) con cantidad fija o calculada por regla, sumada a la lista de materiales.
+- *En Tableros MEC:* El pedido, la lista de materiales y la pestaña Componentes incluyen las barras de riel DIN y de cablecanal. Faltan carteles, tapas y tapones como renglones.
 - *Fuente:* https://www.phoenixcontact.com/cxe/help/Releases_cxE_2_5.htm
 
 **81. Holgura entre componentes sobre el riel** · ya está en la app
@@ -990,12 +990,12 @@ Ordenado por valor para el taller y después por esfuerzo. El valor y el esfuerz
 - *En Tableros MEC:* Se eligen las hojas de la carpeta y si el plano muestra medidas. Falta elegir dato por dato.
 - *Fuente:* https://github.com/ItsRebaseTime/ElectroCraft/blob/main/docs/user-guide.md ; https://knx-user-forum.de/forum/supportforen/stromlaufplan-de/2054717-bezeichnung-von-sicherungen-im-aufbauplan
 
-**105. Notas del taller sobre el plano** · pendiente
+**105. Notas del taller sobre el plano** · ya está en la app
 
 - *Quién la tiene:* EPLAN eVIEW Free; EPLAN Smart Mounting; WSCAD Cabinet AR
 - *Cómo funciona:* En eVIEW se marcan errores y cambios con trazos rojos y verdes sobre el proyecto y sobre el modelo 3D del gabinete. En Smart Mounting el operario escribe un comentario sobre un componente y lo devuelve a ingeniería. Cabinet AR permite anotar cambios en el PDF.
 - *Para qué sirve:* Que lo que se cambió en el banco vuelva al diseño antes de la próxima serie.
-- *Cómo adaptarla:* Una nota por componente y por tablero, visible como marca en el plano, que viaje dentro del enlace compartido.
+- *En Tableros MEC:* Menú → Medidas del tablero → “Notas del taller”. Se ven bajo el plano, en la pestaña Armar y en la carpeta impresa.
 - *Fuente:* https://www.eplanusa.com/solutions/eplan-eview/ ; https://eplan.com/us-en/products/eplan-smart-mounting.html
 
 **106. Marca de dato a verificar que también se imprime** · ya está en la app

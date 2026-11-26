@@ -22,7 +22,11 @@ function contraste(hex) {
   return l > 0.55 ? '#111' : '#fff';
 }
 
+let serie = 0; // cada plano usa sus propios ids de relleno: el de pantalla y el de impresión conviven en la página
+
 export function crearVista2D(svg, { alSeleccionar, alSoltar, esBandeja, estaBloqueado }) {
+  serie += 1;
+  const uid = `p${serie}`;
   let t = null;
   let ev = null;
   let sel = null;
@@ -58,23 +62,23 @@ export function crearVista2D(svg, { alSeleccionar, alSoltar, esBandeja, estaBloq
 
     const defs = el('defs');
     defs.innerHTML = `
-      <pattern id="rayas" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <pattern id="${uid}-rayas" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
         <rect width="8" height="8" fill="rgba(220,38,38,.30)"/><rect width="3.2" height="8" fill="rgba(220,38,38,.75)"/>
       </pattern>
-      <pattern id="ranuras" width="12" height="12" patternUnits="userSpaceOnUse">
+      <pattern id="${uid}-ranuras" width="12" height="12" patternUnits="userSpaceOnUse">
         <rect width="12" height="12" fill="#a3a9b1"/><rect x="4" width="3" height="12" fill="#8d949c"/>
       </pattern>
-      <linearGradient id="chapa" x1="0" y1="0" x2="1" y2="1">
+      <linearGradient id="${uid}-chapa" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0" stop-color="#d7dce1"/><stop offset=".5" stop-color="#c3c9cf"/><stop offset="1" stop-color="#d2d7dc"/>
       </linearGradient>`;
     svg.appendChild(defs);
 
     // placa
-    svg.appendChild(el('rect', { x: 0, y: 0, width: W, height: H, rx: 3, fill: 'url(#chapa)', stroke: '#7c838b', 'stroke-width': 1.2 }));
+    svg.appendChild(el('rect', { x: 0, y: 0, width: W, height: H, rx: 3, fill: `url(#${uid}-chapa)`, stroke: '#7c838b', 'stroke-width': 1.2 }));
 
     // cablecanal
     geo.canales.forEach((c) => {
-      svg.appendChild(el('rect', { x: c.x, y: c.y, width: c.w, height: c.h, fill: c.tipo === 'v' ? 'url(#ranuras)' : '#9ba1a9', stroke: '#7a8189', 'stroke-width': 0.6 }));
+      svg.appendChild(el('rect', { x: c.x, y: c.y, width: c.w, height: c.h, fill: c.tipo === 'v' ? `url(#${uid}-ranuras)` : '#9ba1a9', stroke: '#7a8189', 'stroke-width': 0.6 }));
       if (c.tipo === 'h') svg.appendChild(el('rect', { x: c.x, y: c.y + c.h * 0.12, width: c.w, height: c.h * 0.76, fill: '#aab0b7' }));
     });
 
@@ -90,7 +94,7 @@ export function crearVista2D(svg, { alSeleccionar, alSoltar, esBandeja, estaBloq
       }
       // tramo que se pasa del riel
       if (r.ocupado > r.largo + 0.05) {
-        svg.appendChild(el('rect', { x: g.x0 + g.largo, y: g.y0, width: r.ocupado - r.largo, height: Math.max(g.alto, 35), fill: 'url(#rayas)' }));
+        svg.appendChild(el('rect', { x: g.x0 + g.largo, y: g.y0, width: r.ocupado - r.largo, height: Math.max(g.alto, 35), fill: `url(#${uid}-rayas)` }));
         svg.appendChild(el('line', { x1: g.x0 + g.largo, y1: g.y0, x2: g.x0 + g.largo, y2: g.y0 + Math.max(g.alto, 35), stroke: COLOR.pasado, 'stroke-width': 1.6 }));
       }
       // encabezado de la fila sobre el canal de arriba
@@ -139,7 +143,7 @@ export function crearVista2D(svg, { alSeleccionar, alSoltar, esBandeja, estaBloq
           if (fs >= 2.5) grupo.appendChild(el('text', { 'font-size': fs, 'text-anchor': 'middle', 'dominant-baseline': 'central', fill: contraste(e.comp.color), transform: `translate(${e.ancho / 2} ${e.alto / 2}) rotate(-90)` }, nombre));
         }
         if (e.estado !== 'ok') {
-          grupo.appendChild(el('rect', { width: e.ancho, height: e.alto, rx: 1.5, fill: e.estado === 'pasado' ? 'url(#rayas)' : 'rgba(255,196,0,.40)', stroke: COLOR[e.estado], 'stroke-width': 2.4, class: 'marca' }));
+          grupo.appendChild(el('rect', { width: e.ancho, height: e.alto, rx: 1.5, fill: e.estado === 'pasado' ? `url(#${uid}-rayas)` : 'rgba(255,196,0,.40)', stroke: COLOR[e.estado], 'stroke-width': 2.4, class: 'marca' }));
         }
         if (t.armado && t.armado[e.id]) {
           // ya está montado en el tablero real
@@ -149,8 +153,14 @@ export function crearVista2D(svg, { alSeleccionar, alSoltar, esBandeja, estaBloq
           grupo.appendChild(el('circle', { cx, cy, r: rr, fill: '#16a34a', stroke: '#fff', 'stroke-width': 1 }));
           grupo.appendChild(el('path', { d: `M${cx - rr * 0.45} ${cy} l${rr * 0.32} ${rr * 0.36} l${rr * 0.6} ${-rr * 0.72}`, fill: 'none', stroke: '#fff', 'stroke-width': rr * 0.28, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
         }
+        if (e.it && e.it.fijo) {
+          // fijado a este riel: "Acomodar" no lo cambia de lugar
+          const rr = Math.max(2.6, Math.min(6, e.ancho * 0.26));
+          grupo.appendChild(el('circle', { cx: rr + 1.5, cy: rr + 1.5, r: rr, fill: '#0b6bff', stroke: '#fff', 'stroke-width': 1 }));
+          grupo.appendChild(el('circle', { cx: rr + 1.5, cy: rr + 1.5, r: rr * 0.38, fill: '#fff' }));
+        }
         grupo.appendChild(el('rect', { x: -1.5, y: -1.5, width: e.ancho + 3, height: e.alto + 3, rx: 2.5, fill: 'none', class: 'borde-sel' }));
-        const titulo = el('title', {}, `${etiqueta ? `${etiqueta} · ` : ''}${e.comp.nombre} · ${fmt(e.ancho)} × ${fmt(e.alto)} mm${e.motivos.length ? `\n${e.motivos.join('\n')}` : ''}`);
+        const titulo = el('title', {}, `${etiqueta ? `${etiqueta} · ` : ''}${e.comp.nombre} · ${fmt(e.ancho)} × ${fmt(e.alto)} mm${e.it && e.it.fijo ? ' · fijado en este riel' : ''}${e.motivos.length ? `\n${e.motivos.join('\n')}` : ''}`);
         grupo.appendChild(titulo);
         svg.appendChild(grupo);
       });
@@ -281,7 +291,10 @@ export function crearVista2D(svg, { alSeleccionar, alSoltar, esBandeja, estaBloq
   // terminaba apretando un botón de la ficha que aparece debajo.
   svg.addEventListener('click', (e) => {
     if (saltarClick) { saltarClick = false; return; }
-    const g = e.target.closest && e.target.closest('.ap');
+    // Con el puntero capturado (mouse, o dedo sobre el aparato ya elegido) el destino del click es el plano entero:
+    // el aparato se busca por la posición del cursor.
+    const bajo = document.elementFromPoint(e.clientX, e.clientY) || e.target;
+    const g = (bajo.closest && bajo.closest('.ap')) || (e.target.closest && e.target.closest('.ap'));
     alSeleccionar(g ? g.getAttribute('data-id') : null);
   });
 
@@ -289,14 +302,21 @@ export function crearVista2D(svg, { alSeleccionar, alSoltar, esBandeja, estaBloq
   function arrastrarDesdeAfuera(id, comp, e) {
     empezar(id, comp, e);
     const alMover = (m) => mover(m);
-    const alSubir = (m) => {
+    const soltarOyentes = () => {
       window.removeEventListener('pointermove', alMover);
       window.removeEventListener('pointerup', alSubir);
+      window.removeEventListener('pointercancel', alCancelar);
+    };
+    function alSubir(m) {
+      soltarOyentes();
       if (arrastre && arrastre.activo) pintarArrastre(m);
       terminar(true);
-    };
+    }
+    // si el navegador cancela el puntero (por ejemplo, porque arrancó su propio arrastre), no queda nada colgado
+    function alCancelar() { soltarOyentes(); terminar(false); }
     window.addEventListener('pointermove', alMover);
     window.addEventListener('pointerup', alSubir);
+    window.addEventListener('pointercancel', alCancelar);
   }
 
   return { dibujar, arrastrarDesdeAfuera };

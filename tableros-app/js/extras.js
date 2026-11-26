@@ -63,20 +63,27 @@ export function listaDeCorte(t, { largoBarra = 2000, cantidad = null } = {}) {
   const canal = [];
   for (let k = 0; k < veces; k += 1) {
     geo.rieles.forEach((r) => { if (r.largo > 0) riel.push({ largo: r.largo, donde: `Riel ${r.indice + 1} · ${r.nombre}` }); });
-    // tramos verticales contiguos del mismo lado se cortan como una sola pieza
+    // Los tramos verticales seguidos de un mismo lado se cortan como una sola pieza que pasa de largo;
+    // los horizontales que quedan entre dos verticales se cortan más cortos, para que no se pisen en el cruce.
     const lados = new Map();
+    const horizontales = [];
     geo.canales.forEach((c) => {
-      if (c.tipo === 'h') { canal.push({ largo: c.w, donde: `Horizontal ${c.fila + 1}` }); return; }
+      if (c.tipo === 'h') { horizontales.push(c); return; }
       const lado = c.x < t.placa.ancho / 2 ? 'izquierdo' : 'derecho';
       const lista = lados.get(lado) || [];
       lista.push(c);
       lados.set(lado, lista);
     });
+    const verticales = [];
     lados.forEach((lista, lado) => {
       lista.sort((a, b) => a.y - b.y);
       let ini = null;
       let fin = null;
-      const cerrar = () => { if (ini != null) canal.push({ largo: fin - ini, donde: `Vertical ${lado}` }); };
+      const cerrar = () => {
+        if (ini == null) return;
+        canal.push({ largo: fin - ini, donde: `Vertical ${lado}` });
+        verticales.push({ ini, fin });
+      };
       lista.forEach((c) => {
         // dos tramos seguidos están separados solo por el canal horizontal: van en una pieza
         if (ini != null && c.y - fin <= geo.c + 0.5) { fin = c.y + c.h; return; }
@@ -85,6 +92,10 @@ export function listaDeCorte(t, { largoBarra = 2000, cantidad = null } = {}) {
         fin = c.y + c.h;
       });
       cerrar();
+    });
+    horizontales.forEach((h) => {
+      const cruces = verticales.filter((v) => v.ini < h.y - 0.5 && v.fin > h.y + h.h + 0.5).length;
+      canal.push({ largo: Math.max(0, h.w - cruces * geo.c), donde: `Horizontal ${h.fila + 1}` });
     });
   }
   const total = (ps) => ps.reduce((s, p) => s + p.largo, 0);
@@ -100,9 +111,11 @@ export function listaDeCorte(t, { largoBarra = 2000, cantidad = null } = {}) {
 // ---------------------------------------------------------------------------
 function entraCon(t, cat, ancho, modo, reserva) {
   const p = JSON.parse(JSON.stringify(t));
+  // los largos de riel cargados a mano acompañan al cambio de ancho; el resto se calcula solo
+  const delta = ancho - t.placa.ancho;
+  p.rieles.forEach((r) => { if (r.largo != null) r.largo = Math.max(0, r.largo + delta); });
   p.placa.ancho = ancho;
-  // los largos manuales dejan de valer: se recalculan con el ancho que se prueba
-  p.rieles.forEach((r) => { r.largo = null; delete r.x0; });
+  p.reserva = reserva; // se acomoda buscando la reserva que se está probando, no la guardada
   acomodar(p, cat, modo);
   const ev = evaluar(p, cat);
   if (ev.sinUbicar.length) return false;
@@ -118,22 +131,14 @@ export function placaMinima(t, cat, { modo = 'equilibrado', reserva = 0, redonde
   if (!n) return null;
   const comps = Object.values(t.items).map((it) => compDe(cat, it.comp));
   if (!comps.length) return null;
-  const fijo = 2 * (t.margen + t.canal.ancho);
   const masAncho = Math.max(...comps.map((c) => c.ancho));
-  let bajo = fijo + masAncho;
-  let alto = fijo + comps.reduce((s, c) => s + c.ancho, 0) * (1 + reserva / 100) + masAncho + 50;
-  if (!entraCon(t, cat, alto, modo, reserva)) {
-    // caso raro: se agranda hasta que entre
-    let tope = alto;
-    for (let i = 0; i < 6 && !entraCon(t, cat, tope, modo, reserva); i += 1) tope *= 1.5;
-    alto = tope;
-  }
-  for (let i = 0; i < 24 && alto - bajo > 0.5; i += 1) {
-    const medio = (bajo + alto) / 2;
-    if (entraCon(t, cat, medio, modo, reserva)) alto = medio; else bajo = medio;
-  }
+  const total = comps.reduce((s, c) => s + c.ancho, 0);
+  // "Entra" no crece parejo con el ancho (cambia el reparto por función), así que se prueba ancho por ancho
+  // desde el más chico posible: ningún riel es más largo que la placa, de modo que n placas tienen que sumar el total.
+  const abajo = (v) => Math.floor((v + 0.01) / redondeo) * redondeo;
   const arriba = (v) => Math.ceil((v - 0.01) / redondeo) * redondeo;
-  const anchoMin = arriba(alto);
+  let anchoMin = Math.max(redondeo, abajo(Math.max(masAncho, total / n)));
+  for (let i = 0; i < 800 && !entraCon(t, cat, anchoMin, modo, reserva); i += 1) anchoMin += redondeo;
   // alto: cada fila necesita el aparato más alto más la distancia mínima al cablecanal de cada lado
   const masAlto = Math.max(...comps.map((c) => c.alto));
   const canalesH = n + (t.canalAbajo ? 1 : 0);
@@ -214,13 +219,28 @@ export function renumerar(t) {
   const orden = [];
   t.rieles.forEach((r) => r.items.forEach((id) => orden.push(id)));
   t.sinUbicar.forEach((id) => orden.push(id));
+  const partes = (id) => /^(.*?)(\d+)$/.exec(t.items[id].etiqueta || '');
+  // Si un mismo rótulo ya está en dos modelos distintos (SOP1 en el guardamotor y en su contactor), ese prefijo
+  // se numera por modelo. Si no, todos los que comparten prefijo se numeran de corrido (Q1, Q2, Q3...).
+  const modelosDe = new Map();
+  const cuantos = new Map();
+  orden.forEach((id) => {
+    const m = partes(id);
+    if (!m) return;
+    const etiqueta = t.items[id].etiqueta;
+    if (!modelosDe.has(etiqueta)) modelosDe.set(etiqueta, new Set());
+    modelosDe.get(etiqueta).add(t.items[id].comp);
+    cuantos.set(m[1], (cuantos.get(m[1]) || 0) + 1);
+  });
+  const porModelo = new Set();
+  modelosDe.forEach((modelos, etiqueta) => { if (modelos.size > 1) porModelo.add(/^(.*?)(\d+)$/.exec(etiqueta)[1]); });
   const contadores = new Map();
   let cambios = 0;
   orden.forEach((id) => {
     const it = t.items[id];
-    const m = /^(.*?)(\d+)$/.exec(it.etiqueta || '');
-    if (!m) return;
-    const clave = `${it.comp}|${m[1]}`;
+    const m = partes(id);
+    if (!m || cuantos.get(m[1]) < 2) return; // un rótulo único con número (FUENTE 24, C10) no es una serie
+    const clave = porModelo.has(m[1]) ? `${it.comp}|${m[1]}` : m[1];
     const n = (contadores.get(clave) || 0) + 1;
     contadores.set(clave, n);
     const nueva = `${m[1]}${n}`;
@@ -263,6 +283,19 @@ export function placasPorRieles(t, cat, { modo = 'equilibrado', reserva = 0 } = 
 }
 
 // ---------------------------------------------------------------------------
+// Materiales de montaje: barras de riel y de cablecanal que hay que comprar para la serie
+// ---------------------------------------------------------------------------
+export function materialesDeMontaje(t, { largoBarra = 2000 } = {}) {
+  const lc = listaDeCorte(t, { largoBarra });
+  const m = (mm) => fmt(Math.round(mm / 10) / 100);
+  const barra = `${fmt(largoBarra / 1000)} m`;
+  const out = [];
+  if (lc.riel.barras.length) out.push({ nombre: 'Riel DIN 35 mm', cantidad: lc.riel.barras.length, unidad: `barras de ${barra}`, detalle: `${m(lc.riel.total)} m a cortar` });
+  if (lc.canal.barras.length && t.canal.ancho > 0) out.push({ nombre: `Cablecanal ${fmt(t.canal.ancho)} × ${fmt(t.canal.alto)} mm`, cantidad: lc.canal.barras.length, unidad: `barras de ${barra}`, detalle: `${m(lc.canal.total)} m a cortar` });
+  return out;
+}
+
+// ---------------------------------------------------------------------------
 // Texto del pedido de materiales, agrupado por marca, para mandar por WhatsApp o mail
 // ---------------------------------------------------------------------------
 export function textoPedido(t, cat) {
@@ -286,5 +319,10 @@ export function textoPedido(t, cat) {
     });
     lineas.push('');
   });
+  const montaje = materialesDeMontaje(t);
+  if (montaje.length) {
+    lineas.push('Montaje:');
+    montaje.forEach((x) => lineas.push(`  ${x.cantidad} × ${x.nombre} (${x.unidad}; ${x.detalle})`));
+  }
   return lineas.join('\n').trim();
 }

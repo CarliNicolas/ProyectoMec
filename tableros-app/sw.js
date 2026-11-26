@@ -1,8 +1,8 @@
 // Service worker: guarda la app en el dispositivo para que funcione sin conexión.
 // Al publicar una versión nueva, cambiar VERSION para que los dispositivos la tomen.
-const VERSION = 'tableros-mec-v2';
+const VERSION = 'tableros-mec-v3';
 const ARCHIVOS = [
-  './', 'index.html', 'styles.css', 'manifest.webmanifest',
+  './', 'styles.css', 'manifest.webmanifest',
   'js/app.js', 'js/catalogo.js', 'js/extras.js', 'js/hojas.js', 'js/layout.js', 'js/plantillas.js', 'js/store.js', 'js/vista2d.js', 'js/vista3d.js',
   'vendor/three.module.min.js', 'vendor/OrbitControls.js',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png',
@@ -24,6 +24,8 @@ self.addEventListener('activate', (e) => {
 });
 
 // Primero la red (para recibir actualizaciones) y, si no hay conexión, lo guardado.
+// La página se guarda como './' y no como 'index.html': algunos alojamientos redirigen /index.html a /,
+// y una respuesta redirigida no sirve para abrir la página sin conexión.
 self.addEventListener('fetch', (e) => {
   const { request } = e;
   if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
@@ -36,6 +38,6 @@ self.addEventListener('fetch', (e) => {
         }
         return resp;
       })
-      .catch(() => caches.match(request, { ignoreSearch: true }).then((r) => r || caches.match('index.html'))),
+      .catch(() => caches.match(request, { ignoreSearch: true }).then((r) => r || caches.match('./'))),
   );
 });
