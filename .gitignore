@@ -1,0 +1,4 @@
+# Archivos locales de herramientas: no van al repositorio
+.wrangler/
+node_modules/
+.dev.vars
